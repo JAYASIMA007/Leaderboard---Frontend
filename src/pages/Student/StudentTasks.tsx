@@ -63,11 +63,7 @@ export default function Component() {
   const navigate = useNavigate();
   const initialEventId = location.state?.selectedEventId;
   const [selectedEventId, setSelectedEventId] = useState<string | null>(initialEventId || null);
-  const [eventPointsData, setEventPointsData] = useState<any>(null);
-  const [eventLoading, setEventLoading] = useState<boolean>(false);
-  const [eventError, setEventError] = useState<string | null>(null);
   const [leaderboardData, setLeaderboardData] = useState<{ overall: any[]; weekly: any[]; monthly: any[] }>({ overall: [], weekly: [], monthly: [] });
-  const [studentName, setStudentName] = useState<string>("");
   const [studentEmail, setStudentEmail] = useState<string>("");
 
   const getJwtToken = (): string | null => {
@@ -124,8 +120,6 @@ export default function Component() {
   const fetchEventPoints = async (eventId: string) => {
     if (!eventId) return;
     try {
-      setEventLoading(true);
-      setEventError(null);
       const jwtToken = getJwtToken();
       if (!jwtToken) {
         throw new Error("Authentication required. Please login again.");
@@ -144,7 +138,7 @@ export default function Component() {
       );
       const eventPointsData = await eventPointsResponse.json();
       if (eventPointsData.success) {
-        setEventPointsData(eventPointsData.data);
+        console.log("Event points data:", eventPointsData.data);
       } else {
         throw new Error(eventPointsData.error || "Failed to fetch event points");
       }
@@ -182,14 +176,10 @@ export default function Component() {
       );
       const getDataJson = await getDataResponse.json();
       if (getDataJson.success) {
-        setStudentName(getDataJson.student_data.name || "");
         setStudentEmail(getDataJson.student_data.email || "");
       }
     } catch (err: any) {
-      setEventError(err.message || "An error occurred while fetching event data");
-      setEventPointsData(null);
-    } finally {
-      setEventLoading(false);
+      console.error("Error fetching event data:", err.message || "An error occurred while fetching event data");
     }
   };
 

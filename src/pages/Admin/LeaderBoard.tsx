@@ -87,7 +87,7 @@ const getAvatarColor = (rank: number) => {
 }
 
 // Student Profile Component
-const StudentProfile = ({ student }: { student: Student }) => {
+export const StudentProfile = ({ student }: { student: Student }) => {
     const navigate = useNavigate()
 
     return (
@@ -626,14 +626,45 @@ const LeaderBoardView = ({ view }: { view: string }) => {
 export default function LeaderBoard() {
     const location = useLocation()
     const { view, studentId } = useParams()
+    const [leaderboardData, setLeaderboardData] = useState<{ overall: any[]; weekly: any[]; monthly: any[] }>({ overall: [], weekly: [], monthly: [] })
 
-    const getFilteredStudents = () => {
-        const apiList = leaderboardData[view as 'overall'] || []
-        return apiList
-            .filter((student: any) => student.name && student.name.trim() !== "")
-            .map((student: any, idx: number) => ({
+    useEffect(() => {
+        const fetchLeaderboard = async () => {
+            try {
+                const jwtToken = document.cookie.split(';').find(c => c.trim().startsWith('jwt='))?.split('=')[1]
+                const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://leaderboard-backend-4uxl.onrender.com'
+                const leaderboardResponse = await axios.post(
+                    `${API_BASE_URL}/api/student/leaderboard/`,
+                    {},
+                    {
+                        headers: {
+                            "Content-Type": "application/json",
+                            Authorization: `Bearer ${jwtToken}`,
+                        },
+                    }
+                )
+                if (leaderboardResponse.data.success) {
+                    setLeaderboardData({
+                        overall: leaderboardResponse.data.overall || [],
+                        weekly: leaderboardResponse.data.weekly || [],
+                        monthly: leaderboardResponse.data.monthly || [],
+                    })
+                }
+            } catch (err) {
+                console.error("Failed to fetch leaderboard data:", err)
+            }
+        }
+        fetchLeaderboard()
+    }, [])
+
+    // Check if we're on a student profile page
+    if (location.pathname.startsWith("/student/") && studentId) {
+        // Find student data from the leaderboard
+        const student = leaderboardData?.overall?.find((s: any) => s._id === studentId);
+        if (student) {
+            const formattedStudent: Student = {
                 id: student._id,
-                rank: idx + 1,
+                rank: 0,
                 name: student.name || student.email || "Unknown",
                 level: student.level || 1,
                 points: student.total_score || 0,
@@ -644,29 +675,23 @@ export default function LeaderBoard() {
                 completionRate: student.completionRate || 0,
                 joinDate: student.joinDate || '',
                 streak: student.streak || 0,
-            }))
-    }
-
-    // Check if we're on a student profile page
-    if (location.pathname.startsWith("/student/") && studentId) {
-        const student = getFilteredStudents().find((s: Student) => s.id === studentId)
-
-        if (!student) {
-            return (
-                <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-amber-50 to-orange-50 flex items-center justify-center">
-                    <div className="bg-white/90 backdrop-blur-sm border border-white/20 p-8 rounded-3xl text-center shadow-2xl">
-                        <h2 className="text-gray-900 text-2xl font-bold mb-4">Student Not Found</h2>
-                        <Link to="/leaderboard/overall">
-                            <button className="bg-gradient-to-r from-yellow-400 via-amber-400 to-orange-400 hover:from-yellow-500 hover:via-amber-500 hover:to-orange-500 text-black px-6 py-2 rounded-xl transition-colors shadow-lg font-semibold">
-                                Back to Leaderboard
-                            </button>
-                        </Link>
-                    </div>
-                </div>
-            )
+                weeklyChange: student.weeklyChange || 0,
+            };
+            return <StudentProfile student={formattedStudent} />;
         }
-
-        return <StudentProfile student={student} />
+        return (
+            <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-amber-50 to-orange-50 flex items-center justify-center">
+                <div className="bg-white/90 backdrop-blur-sm border border-white/20 p-8 rounded-3xl text-center shadow-2xl">
+                    <h2 className="text-gray-900 text-2xl font-bold mb-4">Student Profile</h2>
+                    <p className="text-gray-600 mb-4">Student ID: {studentId}</p>
+                    <Link to="/leaderboard/overall">
+                        <button className="bg-gradient-to-r from-yellow-400 via-amber-400 to-orange-400 hover:from-yellow-500 hover:via-amber-500 hover:to-orange-500 text-black px-6 py-2 rounded-xl transition-colors shadow-lg font-semibold">
+                            Back to Leaderboard
+                        </button>
+                    </Link>
+                </div>
+            </div>
+        )
     }
 
     // Default to leaderboard view

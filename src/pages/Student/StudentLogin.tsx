@@ -24,7 +24,6 @@ const StudentLogin = ({ onLogin }: StudentLoginProps) => {
     email: '',
     password: '',
   });
-  const [errorMessage, setErrorMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -75,7 +74,6 @@ const StudentLogin = ({ onLogin }: StudentLoginProps) => {
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
     setLoading(true);
-    setErrorMessage('');
 
     try {
       const response = await axios.post<LoginResponse>(
@@ -103,9 +101,7 @@ const StudentLogin = ({ onLogin }: StudentLoginProps) => {
       }
     } catch (error: unknown) {
       const axiosError = error as { response?: { data?: ErrorResponse } };
-      setErrorMessage(
-        axiosError.response?.data?.error || 'An error occurred during login.'
-      );
+      console.log(axiosError.response?.data?.error || 'An error occurred during login.');
       toast.error('Wrong username or password.');
     } finally {
       setLoading(false);

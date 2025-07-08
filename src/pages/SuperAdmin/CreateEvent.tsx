@@ -115,7 +115,6 @@ const CreateTaskPage: React.FC = () => {
   const [success, setSuccess] = useState(false)
   const [responseData, setResponseData] = useState<ResponseData | null>(null)
   const [showStudents, setShowStudents] = useState(false)
-  const [expandedTasks, setExpandedTasks] = useState<Set<string>>(new Set())
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [currentView, setCurrentView] = useState<"overview" | "level" | "task">("overview")
   const [selectedLevel, setSelectedLevel] = useState<number>(0)
@@ -237,11 +236,6 @@ const CreateTaskPage: React.FC = () => {
     if (newLevels[levelIndex].tasks.length > 1) {
       newLevels[levelIndex].tasks = newLevels[levelIndex].tasks.filter((_, i) => i !== taskIndex)
       setFormData({ ...formData, levels: newLevels })
-      setExpandedTasks((prev) => {
-        const newSet = new Set(prev)
-        newSet.delete(`${levelIndex}-${taskIndex}`)
-        return newSet
-      })
       if (selectedTask >= taskIndex && selectedTask > 0) {
         setSelectedTask(selectedTask - 1)
       }
@@ -817,7 +811,7 @@ const CreateTaskPage: React.FC = () => {
 
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                       <div className="space-y-2">
-                        <label className="block text-sm font-semibold text-gray-700 flex items-center">
+                        <label className="flex text-sm font-semibold text-gray-700 items-center">
                           <Flame className="w-4 h-4 mr-1" />
                           Event Name *
                         </label>
@@ -831,7 +825,7 @@ const CreateTaskPage: React.FC = () => {
                         />
                       </div>
                       <div className="relative space-y-2">
-                        <label className="block text-sm font-semibold text-gray-700 flex items-center">
+                        <label className="flex text-sm font-semibold text-gray-700 items-center">
                           <Users className="w-4 h-4 mr-1" />
                           Assign To Admins *
                         </label>
@@ -1211,7 +1205,7 @@ const CreateTaskPage: React.FC = () => {
                               <div className="space-y-4">
                                 <div className="grid grid-cols-2 gap-4">
                                   <div className="space-y-2">
-                                    <label className="block text-sm font-semibold text-gray-700 flex items-center">
+                                    <label className="text-sm font-semibold text-gray-700 flex items-center">
                                       <Calendar className="w-4 h-4 mr-1" />
                                       Start Date *
                                     </label>
@@ -1232,7 +1226,7 @@ const CreateTaskPage: React.FC = () => {
                                     />
                                   </div>
                                   <div className="space-y-2">
-                                    <label className="block text-sm font-semibold text-gray-700 flex items-center">
+                                    <label className="text-sm font-semibold text-gray-700 flex items-center">
                                       <Calendar className="w-4 h-4 mr-1" />
                                       End Date *
                                     </label>
@@ -1254,7 +1248,7 @@ const CreateTaskPage: React.FC = () => {
                                   </div>
                                 </div>
                                 <div className="space-y-2">
-                                  <label className="block text-sm font-semibold text-gray-700 flex items-center">
+                                  <label className="text-sm font-semibold text-gray-700 flex items-center">
                                     <Clock className="w-4 h-4 mr-1" />
                                     Task Type
                                   </label>
@@ -1342,7 +1336,7 @@ const CreateTaskPage: React.FC = () => {
                                   )}
                                 </div>
                                 <div className="space-y-2">
-                                  <label className="block text-sm font-semibold text-gray-700 flex items-center">
+                                  <label className="text-sm font-semibold text-gray-700 flex items-center">
                                     <Clock className="w-4 h-4 mr-1" />
                                     Deadline Time
                                   </label>

@@ -69,19 +69,7 @@ const ViewTasks: React.FC = () => {
   const [error, setError] = useState("")
   const [expandedLevels, setExpandedLevels] = useState<{ [key: string]: boolean }>({})
   const [expandedTasks, setExpandedTasks] = useState<{ [key: string]: boolean }>({})
-  const [isMobile, setIsMobile] = useState(false)
   const navigate = useNavigate()
-
-  // Check if mobile on mount and resize
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768)
-    }
-
-    checkMobile()
-    window.addEventListener("resize", checkMobile)
-    return () => window.removeEventListener("resize", checkMobile)
-  }, [])
 
   useEffect(() => {
     const fetchTasks = async () => {
@@ -216,6 +204,27 @@ const ViewTasks: React.FC = () => {
           <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-4 sm:p-6 text-white">
             <h2 className="text-lg sm:text-xl font-semibold mb-1 sm:mb-2">Task Documents</h2>
             <p className="text-blue-100 text-sm sm:text-base">Explore all tasks organized by levels</p>
+          </div>
+
+          {/* Search and Filter */}
+          <div className="p-4 border-b border-gray-200 space-y-3">
+            <input
+              type="text"
+              placeholder="Search by event name or admin..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+            <select
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+              className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="all">All Status</option>
+              <option value="incomplete">Incomplete</option>
+              <option value="partially_completed">Partially Completed</option>
+              <option value="fully_completed">Fully Completed</option>
+            </select>
           </div>
 
           {/* Content */}
