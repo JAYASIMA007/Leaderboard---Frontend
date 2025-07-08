@@ -517,20 +517,6 @@ interface DashboardData {
   challenges: Challenge[];
 }
 
-interface StudentEvent {
-  event_id: string;
-  event_name: string;
-  number_of_levels: number;
-  updated_at: string;
-}
-
-interface StudentEventsResponse {
-  success: boolean;
-  events: StudentEvent[];
-  total_events: number;
-  error?: string;
-}
-
 const StatCard = ({
   icon,
   iconBg,
@@ -626,7 +612,7 @@ const StudentDashboard: React.FC = () => {
   const [eventLoading, setEventLoading] = useState<boolean>(false);
   const [eventError, setEventError] = useState<string | null>(null);
   const [studentName, setStudentName] = useState<string>("");
-  const [studentEmail, setStudentEmail] = useState<string>("");
+  const [setStudentEmail] = useState<string>("");
   const [loginHistory, setLoginHistory] = useState<string[]>([]);
   const [apiLeaderboard, setApiLeaderboard] = useState<LeaderboardEntry[] | null>(null);
   const [leaderboardData, setLeaderboardData] = useState<{

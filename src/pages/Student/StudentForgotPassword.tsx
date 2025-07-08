@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import emailIcon from "../../assets/mail.svg";
 import mail from "../../assets/mail.svg";
-import { ArrowLeft } from 'lucide-react';
 
 // New image imports
 import snsLogo from '../../assets/Logo.svg';

@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useState, useEffect, useCallback, useRef } from "react"
+import type { JSX } from "react"
 import { useNavigate } from "react-router-dom"
 import axios from "axios"
 import { toast } from "react-toastify"
@@ -34,10 +35,6 @@ interface LeaderboardData {
     points: number
     student_id?: string
   }
-}
-
-interface EventDetails {
-  number_of_levels: number
 }
 
 interface JwtPayload {
@@ -292,7 +289,7 @@ const StudentLeaderboard: React.FC<StudentLeaderboardProps> = ({ onEventSelect }
 
     const startIndex = (currentPage - 1) * itemsPerPage
     const endIndex = startIndex + itemsPerPage
-    return currentData.slice(startIndex, endIndex)
+    return Array.isArray(currentData) ? currentData.slice(startIndex, endIndex) : []
   }
 
   const getTotalPages = () => {
@@ -301,7 +298,7 @@ const StudentLeaderboard: React.FC<StudentLeaderboardProps> = ({ onEventSelect }
     if (activeTab.startsWith('level_')) {
       currentData = leaderboardData.levels[activeTab] || []
     }
-    return Math.ceil(currentData.length / itemsPerPage)
+    return Array.isArray(currentData) ? Math.ceil(currentData.length / itemsPerPage) : 0
   }
 
   const totalPages = getTotalPages()
@@ -401,7 +398,7 @@ const StudentLeaderboard: React.FC<StudentLeaderboardProps> = ({ onEventSelect }
               getPaginatedData().map((student: LeaderboardEntry, index: number) => {
                 const actualRank = (currentPage - 1) * itemsPerPage + index + 1
                 const statusInfo = getStatusDisplay(student, index, getPaginatedData())
-                const isCurrentUser = currentUserName && (student.name === currentUserName || student.email === currentUserName)
+                const isCurrentUser = currentUserName && (student.name === currentUserName)
 
                 return (
                   <div
@@ -474,7 +471,7 @@ const StudentLeaderboard: React.FC<StudentLeaderboardProps> = ({ onEventSelect }
                             <span>{statusInfo.tooltip.text}</span>
                           </div>
                         )}
-                        <div className="absolute hidden group-hover:block bottom-full mb-2 w-max max-w-xs bg-gray-800 text-white text-xs rounded-lg py-2 px-3 shadow-lg flex items-center space-x-2">
+                        <div className="absolute group-hover:flex hidden bottom-full mb-2 w-max max-w-xs bg-gray-800 text-white text-xs rounded-lg py-2 px-3 shadow-lg items-center space-x-2">
                           <span className={statusInfo.tooltip.color}>{statusInfo.tooltip.icon}</span>
                           <span>{statusInfo.tooltip.text}</span>
                         </div>
