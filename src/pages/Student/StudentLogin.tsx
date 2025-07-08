@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import mail from '../../assets/mail.svg';
@@ -15,7 +15,11 @@ import loginScattered11 from "../../assets/LoginImg1.png";
 import loginScattered22 from "../../assets/LoginImg2.png";
 import loginScattered33 from "../../assets/LoginImg3.png";
 
-const StudentLogin = ({ onLogin }) => {
+interface StudentLoginProps {
+  onLogin: () => void;
+}
+
+const StudentLogin = ({ onLogin }: StudentLoginProps) => {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -47,20 +51,34 @@ const StudentLogin = ({ onLogin }) => {
     return () => clearInterval(slideInterval);
   }, [isTransitioning, images.length]);
 
-  const handleChange = (e) => {
-    setFormData((prev) => ({
+  interface FormData {
+    email: string;
+    password: string;
+  }
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+    setFormData((prev: FormData) => ({
       ...prev,
       [e.target.name]: e.target.value,
     }));
   };
 
-  const handleLogin = async (e) => {
+  interface LoginResponse {
+    name: string;
+    email: string;
+  }
+
+  interface ErrorResponse {
+    error?: string;
+  }
+
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
     setLoading(true);
     setErrorMessage('');
 
     try {
-      const response = await axios.post(
+      const response = await axios.post<LoginResponse>(
         `${API_BASE_URL}/api/student/login/`,
         formData,
         {
@@ -83,9 +101,10 @@ const StudentLogin = ({ onLogin }) => {
         navigate('/student/dashboard');
         toast.success('Login successful!');
       }
-    } catch (error) {
+    } catch (error: unknown) {
+      const axiosError = error as { response?: { data?: ErrorResponse } };
       setErrorMessage(
-        error.response?.data?.error || 'An error occurred during login.'
+        axiosError.response?.data?.error || 'An error occurred during login.'
       );
       toast.error('Wrong username or password.');
     } finally {
@@ -93,9 +112,9 @@ const StudentLogin = ({ onLogin }) => {
     }
   };
 
-  const handleKeyDown = (e) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLFormElement>) => {
     if (e.key === "Enter") {
-      handleLogin(e);
+      handleLogin(e as unknown as React.FormEvent<HTMLFormElement>);
     }
   };
 

@@ -1,23 +1,32 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import type { ChangeEvent, FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Eye, EyeOff, Mail, Lock, Shield, ArrowRight, AlertCircle, CheckCircle } from 'lucide-react';
-
-// Assuming you have these images in your assets
+import { Eye, EyeOff, Mail, Lock, AlertCircle, CheckCircle } from 'lucide-react';
 import snsLogo from '../../assets/Logo.svg';
 import loginScattered11 from "../../assets/LoginImg1.png";
 import loginScattered22 from "../../assets/LoginImg2.png";
 import loginScattered33 from "../../assets/LoginImg3.png";
 
-const SuperAdminLogin = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState({});
-  const [success, setSuccess] = useState(false);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [isTransitioning, setIsTransitioning] = useState(false);
+interface FormErrors {
+  email?: string;
+  password?: string;
+  general?: string;
+}
 
+interface LoginResponse {
+  token?: string;
+  error?: string;
+}
+
+const SuperAdminLogin = () => {
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [errors, setErrors] = useState<FormErrors>({});
+  const [success, setSuccess] = useState<boolean>(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState<number>(0);
+  const [isTransitioning, setIsTransitioning] = useState<boolean>(false);
   const navigate = useNavigate();
   const images = [loginScattered11, loginScattered22, loginScattered33];
 
@@ -33,12 +42,11 @@ const SuperAdminLogin = () => {
         }, 1000);
       }
     }, 4000);
-
     return () => clearInterval(slideInterval);
   }, [isTransitioning, images.length]);
 
-  const validateForm = () => {
-    const newErrors = {};
+  const validateForm = (): boolean => {
+    const newErrors: FormErrors = {};
     if (!email) newErrors.email = "Email is required";
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
       newErrors.email = "Please enter a valid email address";
@@ -49,43 +57,39 @@ const SuperAdminLogin = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e) => {
-  e.preventDefault();
-  if (!validateForm()) return;
-
-  setLoading(true);
-  setErrors({});
-
-  try {
-    const response = await fetch("https://leaderboard-backend-4uxl.onrender.com/api/superadmin/login/", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ email, password }),
-    });
-
-    const data = await response.json();
-
-    if (response.ok) {
-      console.log("Login successful:", data);
-      setSuccess(true);
-      setTimeout(() => {
-        navigate("/superadmin/dashboard");
-      }, 1500);
-    } else {
-      console.error("Login failed:", data);
-      setErrors({ general: data.error || "Login failed. Please check your credentials and try again." });
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!validateForm()) return;
+    setLoading(true);
+    setErrors({});
+    try {
+      const response = await fetch("https://leaderboard-backend-4uxl.onrender.com/api/superadmin/login/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+      const data: LoginResponse = await response.json();
+      if (response.ok) {
+        console.log("Login successful:", data);
+        setSuccess(true);
+        setTimeout(() => {
+          navigate("/superadmin/dashboard");
+        }, 1500);
+      } else {
+        console.error("Login failed:", data);
+        setErrors({ general: data.error || "Login failed. Please check your credentials and try again." });
+      }
+    } catch (error) {
+      console.error("Error during login:", error);
+      setErrors({ general: "An unexpected error occurred. Please try again later." });
+    } finally {
+      setLoading(false);
     }
-  } catch (error) {
-    console.error("Error during login:", error);
-    setErrors({ general: "An unexpected error occurred. Please try again later." });
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
-  const handleInputChange = (field, value) => {
+  const handleInputChange = (field: string, value: string) => {
     if (field === "email") {
       setEmail(value);
       if (errors.email) setErrors((prev) => ({ ...prev, email: undefined }));
@@ -123,14 +127,12 @@ const SuperAdminLogin = () => {
             <p className="text-sm sm:text-md text-center text-[#8e8e8e] mb-6 sm:mb-8 px-2">
               Please enter your login credentials to access your account
             </p>
-
             {errors.general && (
               <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4 flex items-center w-full">
                 <AlertCircle className="h-5 w-5 text-red-600 mr-3 flex-shrink-0" />
                 <p className="text-red-800 text-sm">{errors.general}</p>
               </div>
             )}
-
             <div className="relative mb-4 w-full">
               <div className="flex items-center border border-[#c6c6c6] rounded-lg p-3 shadow-sm">
                 <Mail className="w-4 h-4 sm:w-5 sm:h-5 text-slate-400" />
@@ -139,7 +141,7 @@ const SuperAdminLogin = () => {
                   id="email"
                   placeholder="admin@example.com"
                   value={email}
-                  onChange={(e) => handleInputChange("email", e.target.value)}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) => handleInputChange("email", e.target.value)}
                   className="flex-1 focus:outline-none text-sm placeholder-gray-400 ml-2"
                   required
                   disabled={loading}
@@ -152,7 +154,6 @@ const SuperAdminLogin = () => {
                 </p>
               )}
             </div>
-
             <div className="relative mb-1 w-full">
               <div className="flex items-center border border-[#c6c6c6] rounded-lg p-3 shadow-sm">
                 <Lock className="w-4 h-4 sm:w-5 sm:h-5 text-slate-400" />
@@ -161,7 +162,7 @@ const SuperAdminLogin = () => {
                   id="password"
                   placeholder="••••••••"
                   value={password}
-                  onChange={(e) => handleInputChange("password", e.target.value)}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) => handleInputChange("password", e.target.value)}
                   className="flex-1 focus:outline-none text-sm placeholder-gray-400 ml-2"
                   required
                   disabled={loading}
@@ -182,7 +183,6 @@ const SuperAdminLogin = () => {
                 </p>
               )}
             </div>
-
             <div className="flex justify-end mt-1 w-full">
               <button
                 type="button"
@@ -193,7 +193,6 @@ const SuperAdminLogin = () => {
                 Forgot Password?
               </button>
             </div>
-
             <div className="flex flex-col items-center w-full">
               <button
                 type="submit"
@@ -208,7 +207,6 @@ const SuperAdminLogin = () => {
             </div>
           </div>
         </form>
-
         <div className="hidden lg:flex flex-1 justify-center items-center flex-col p-8">
           <div className="relative w-full h-full min-h-[400px] overflow-hidden rounded-lg">
             {images.map((img, index) => (

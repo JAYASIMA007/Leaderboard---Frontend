@@ -612,7 +612,7 @@ const StudentDashboard: React.FC = () => {
   const [eventLoading, setEventLoading] = useState<boolean>(false);
   const [eventError, setEventError] = useState<string | null>(null);
   const [studentName, setStudentName] = useState<string>("");
-  const [setStudentEmail] = useState<string>("");
+  const [setStudentEmail] = useState<(email: string) => void>(() => () => {});
   const [loginHistory, setLoginHistory] = useState<string[]>([]);
   const [apiLeaderboard, setApiLeaderboard] = useState<LeaderboardEntry[] | null>(null);
   const [leaderboardData, setLeaderboardData] = useState<{

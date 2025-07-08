@@ -371,10 +371,6 @@ const CreateTaskPage: React.FC = () => {
     setFormData({ ...formData, levels: newLevels })
   }
 
-  const calculateTaskPoints = (task: Task) => {
-    return task.subtasks.reduce((sum, subtask) => sum + subtask.points, 0)
-  }
-
   const calculateLevelPoints = (level: Level) => {
     return level.tasks.reduce((sum, task) => sum + task.points, 0)
   }
@@ -398,18 +394,7 @@ const CreateTaskPage: React.FC = () => {
     )
   }
 
-  const toggleSubtasks = (levelIndex: number, taskIndex: number) => {
-    const taskKey = `${levelIndex}-${taskIndex}`
-    setExpandedTasks((prev) => {
-      const newSet = new Set(prev)
-      if (newSet.has(taskKey)) {
-        newSet.delete(taskKey)
-      } else {
-        newSet.add(taskKey)
-      }
-      return newSet
-    })
-  }
+  
 
   const getTaskTypeIcon = (taskType: string) => {
     switch (taskType) {

@@ -129,9 +129,6 @@ const ViewTasks: React.FC = () => {
     navigate(`/superadmin/assign-users/${eventId}`)
   }
 
-  const handleEditEvent = (eventId: string) => {
-    navigate(`/superadmin/edit-event/${eventId}`)
-  }
 
   const handleDeleteEvent = async (eventId: string) => {
     if (window.confirm("Are you sure you want to delete this event? This action cannot be undone.")) {

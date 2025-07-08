@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { ArrowRight, RefreshCcw } from "lucide-react";
 import { Progress } from "../../components/ui/progress";
 import Navbar from "../../components/Student/Navbar";
-import { Navigate, useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import fire from "../../assets/fire.png";
 import trophy from "../../assets/tropy.png";
 import xpIcon from "../../assets/xp.png";
