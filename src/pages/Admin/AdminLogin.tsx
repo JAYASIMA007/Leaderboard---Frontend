@@ -62,7 +62,7 @@ const AdminLogin = () => {
         password,
       });
 
-      const { jwt, email: returnedEmail, message } = response.data;
+      const { jwt, email: returnedEmail } = response.data;
       const admin_id = response.data.admin_id || response.data._id || ""; // adjust based on backend response
       const name = response.data.name || "Admin"; // fallback
 

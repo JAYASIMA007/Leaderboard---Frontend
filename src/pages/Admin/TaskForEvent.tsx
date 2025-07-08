@@ -184,7 +184,7 @@ const TaskForEvent: React.FC = () => {
       </div>
 
       {/* Enhanced Navbar */}
-      <nav className="relative bg-gradient-to-r from-yellow-500 via-amber-500 to-orange-500 shadow-2xl sticky top-0 z-50">
+      <nav className="bg-gradient-to-r from-yellow-500 via-amber-500 to-orange-500 shadow-2xl sticky top-0 z-50">
         <div className="absolute inset-0 bg-black/5">
           <div
             className="absolute inset-0"
@@ -442,7 +442,7 @@ const TaskForEvent: React.FC = () => {
         )}
       </div>
 
-      <style jsx>{`
+      <style>{`
         @keyframes fadeInUp {
           from {
             opacity: 0;

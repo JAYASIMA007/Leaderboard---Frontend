@@ -20,7 +20,7 @@ import {
     AlertCircle
 } from "lucide-react"
 import { Link, useParams, useNavigate, useLocation } from "react-router-dom"
-import React, { useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import axios from "axios"
 
 interface Student {
@@ -36,6 +36,7 @@ interface Student {
     completionRate: number
     joinDate: string
     streak: number
+    weeklyChange: number
 }
 
 const achievementIcons = {
@@ -217,7 +218,7 @@ const StudentProfile = ({ student }: { student: Student }) => {
                 </div>
             </div>
 
-            <style jsx>{`
+            <style>{`
         @keyframes blob {
           0% {
             transform: translate(0px, 0px) scale(1);
@@ -251,7 +252,6 @@ const StudentProfile = ({ student }: { student: Student }) => {
 
 // Main Leaderboard Component
 const LeaderBoardView = ({ view }: { view: string }) => {
-    const navigate = useNavigate()
     const { event_id } = useParams<{ event_id: string }>()
     const [leaderboardData, setLeaderboardData] = useState<{ overall: any[]; weekly: any[]; monthly: any[] }>({ overall: [], weekly: [], monthly: [] })
     const [loading, setLoading] = useState<boolean>(true)
@@ -350,7 +350,6 @@ const LeaderBoardView = ({ view }: { view: string }) => {
     const getFilteredStudents = () => {
         const apiList = leaderboardData[view as 'overall'] || []
         return apiList
-            .filter((student: any) => student.name && student.name.trim() !== "")
             .map((student: any, idx: number) => ({
                 id: student._id,
                 rank: idx + 1,
@@ -364,14 +363,11 @@ const LeaderBoardView = ({ view }: { view: string }) => {
                 completionRate: student.completionRate || 0,
                 joinDate: student.joinDate || '',
                 streak: student.streak || 0,
+                weeklyChange: student.weeklyChange || 0,
             }))
     }
 
     const filteredStudents = getFilteredStudents()
-
-    const handleStudentClick = (studentId: string) => {
-        navigate(`/student/${studentId}`)
-    }
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-amber-50 to-orange-50">
@@ -383,7 +379,7 @@ const LeaderBoardView = ({ view }: { view: string }) => {
             </div>
 
             {/* Enhanced Navbar */}
-            <nav className="relative bg-gradient-to-r from-yellow-500 via-amber-500 to-orange-500 shadow-2xl sticky top-0 z-50">
+            <nav className="bg-gradient-to-r from-yellow-500 via-amber-500 to-orange-500 shadow-2xl sticky top-0 z-50">
                 <div className="absolute inset-0 bg-black/5">
                     <div
                         className="absolute inset-0"
@@ -583,7 +579,7 @@ const LeaderBoardView = ({ view }: { view: string }) => {
                 </div>
             </div>
 
-            <style jsx>{`
+            <style>{`
         @keyframes fadeInUp {
           from {
             opacity: 0;

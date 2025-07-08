@@ -6,12 +6,9 @@ import axios from "axios"
 import Cookies from "js-cookie"
 import {
   Users,
-  Target,
   Award,
-  Clock,
   ArrowLeft,
   CheckCircle2,
-  AlertCircle,
   XCircle,
   Loader2,
   Hash,
@@ -306,31 +303,7 @@ const TaskReport: React.FC = () => {
     }
   }
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "completely_finished":
-        return "bg-emerald-100 text-emerald-700 border-emerald-200"
-      case "partially_finished":
-        return "bg-amber-100 text-amber-700 border-amber-200"
-      case "incomplete":
-        return "bg-red-100 text-red-700 border-red-200"
-      default:
-        return "bg-gray-100 text-gray-700 border-gray-200"
-    }
-  }
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case "completely_finished":
-        return <CheckCircle2 className="w-4 h-4" />
-      case "partially_finished":
-        return <AlertCircle className="w-4 h-4" />
-      case "incomplete":
-        return <XCircle className="w-4 h-4" />
-      default:
-        return <Clock className="w-4 h-4" />
-    }
-  }
 
   const getProgress = (key: string) => {
     if (!students.length) return 0
@@ -533,7 +506,7 @@ const TaskReport: React.FC = () => {
                   )}
                 </div>
               )}
-              {filteredSubtasks.map((subtask, index) => {
+              {filteredSubtasks.map((subtask) => {
                 const progress = getProgress(subtask.subtask_id)
                 const isActive = activeSubtaskId === subtask.subtask_id
                 const originalIndex = task?.subtasks.findIndex((st) => st.subtask_id === subtask.subtask_id) || 0

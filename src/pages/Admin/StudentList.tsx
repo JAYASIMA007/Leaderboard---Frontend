@@ -192,8 +192,8 @@ const StudentList: React.FC = () => {
               >
                 <option value="all">All Departments</option>
                 {departments.map((dept) => (
-                  <option key={dept} value={dept}>
-                    {dept}
+                  <option key={dept ?? ""} value={dept ?? ""}>
+                    {dept ?? "Unknown"}
                   </option>
                 ))}
               </select>

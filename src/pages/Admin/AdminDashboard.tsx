@@ -2,7 +2,7 @@
 
 import type React from "react"
 import { useState } from "react"
-import { Users, BarChart3, LogOut, Menu, ShieldIcon as ShieldUser, Bell, Settings } from "lucide-react"
+import { Users, BarChart3, LogOut, Menu, ShieldIcon as ShieldUser } from "lucide-react"
 import Overview from "../../components/Admin/Overview"
 import { useNavigate } from "react-router-dom"
 

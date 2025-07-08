@@ -7,7 +7,7 @@ import axios from "axios";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-export function SignupPage({ className, ...props }: React.ComponentProps<"div">) {
+export function SignupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
@@ -17,13 +17,9 @@ export function SignupPage({ className, ...props }: React.ComponentProps<"div">)
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      interface SignUpResponse {
-        message: string;
-      }
 
-      const response = await axios.post("https://leaderboard-backend-4uxl.onrender.com/api/admin/signup/", { name, email, password, college_name: "SNSCT" });
+      await axios.post("https://leaderboard-backend-4uxl.onrender.com/api/admin/signup/", { name, email, password, college_name: "SNSCT" });
       navigate("/admin"); // Navigate to admin page on success
-      const data = response.data as SignUpResponse;
       // Handle successful signup, e.g., redirect or show success message
       
       
