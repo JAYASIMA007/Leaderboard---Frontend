@@ -17,10 +17,12 @@ import {
     Calendar,
     BookOpen,
     ArrowLeftFromLine,
-    AlertCircle
+    AlertCircle,
+    Rocket,
 } from "lucide-react"
 import { Link, useParams, useNavigate, useLocation } from "react-router-dom"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
+import type { JSX } from "react"
 import axios from "axios"
 
 interface Student {
@@ -87,7 +89,7 @@ const getAvatarColor = (rank: number) => {
 }
 
 // Student Profile Component
-export const StudentProfile = ({ student }: { student: Student }) => {
+const StudentProfile = ({ student }: { student: Student }) => {
     const navigate = useNavigate()
 
     return (
@@ -120,7 +122,7 @@ export const StudentProfile = ({ student }: { student: Student }) => {
                     {/* Profile Card */}
                     <div className="bg-white/90 backdrop-blur-sm border border-white/20 hover:border-yellow-300/50 p-6 rounded-3xl mb-6 shadow-xl hover:shadow-2xl transition-all duration-500">
                         <div className="flex items-center gap-6 mb-6">
-                            <div className="w-20 h-20 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-bold text-2xl shadow-lg">
+                            <div className={`w-20 h-20 ${getAvatarColor(student.rank)} rounded-full flex items-center justify-center text-white font-bold text-2xl shadow-lg`}>
                                 {student.avatar}
                             </div>
                             <div className="flex-1">
@@ -219,43 +221,60 @@ export const StudentProfile = ({ student }: { student: Student }) => {
             </div>
 
             <style>{`
-        @keyframes blob {
-          0% {
-            transform: translate(0px, 0px) scale(1);
-          }
-          33% {
-            transform: translate(30px, -50px) scale(1.1);
-          }
-          66% {
-            transform: translate(-20px, 20px) scale(0.9);
-          }
-          100% {
-            transform: translate(0px, 0px) scale(1);
-          }
-        }
+                @keyframes blob {
+                    0% {
+                        transform: translate(0px, 0px) scale(1);
+                    }
+                    33% {
+                        transform: translate(30px, -50px) scale(1.1);
+                    }
+                    66% {
+                        transform: translate(-20px, 20px) scale(0.9);
+                    }
+                    100% {
+                        transform: translate(0px, 0px) scale(1);
+                    }
+                }
 
-        .animate-blob {
-          animation: blob 7s infinite;
-        }
+                .animate-blob {
+                    animation: blob 7s infinite;
+                }
 
-        .animation-delay-2000 {
-          animation-delay: 2s;
-        }
+                .animation-delay-2000 {
+                    animation-delay: 2s;
+                }
 
-        .animation-delay-4000 {
-          animation-delay: 4s;
-        }
-      `}</style>
+                .animation-delay-4000 {
+                    animation-delay: 4s;
+                }
+            `}</style>
         </div>
     )
 }
 
 // Main Leaderboard Component
 const LeaderBoardView = ({ view }: { view: string }) => {
+    const navigate = useNavigate()
     const { event_id } = useParams<{ event_id: string }>()
     const [leaderboardData, setLeaderboardData] = useState<{ overall: any[]; weekly: any[]; monthly: any[] }>({ overall: [], weekly: [], monthly: [] })
     const [loading, setLoading] = useState<boolean>(true)
     const [error, setError] = useState<string | null>(null)
+    const [openTooltipId, setOpenTooltipId] = useState<string | null>(null)
+    const tooltipRefs = useRef<Map<string, HTMLDivElement>>(new Map())
+
+    // Close tooltip when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (
+                openTooltipId &&
+                !Array.from(tooltipRefs.current.values()).some((ref) => ref.contains(event.target as Node))
+            ) {
+                setOpenTooltipId(null)
+            }
+        }
+        document.addEventListener("mousedown", handleClickOutside)
+        return () => document.removeEventListener("mousedown", handleClickOutside)
+    }, [openTooltipId])
 
     useEffect(() => {
         const fetchLeaderboard = async () => {
@@ -263,7 +282,7 @@ const LeaderBoardView = ({ view }: { view: string }) => {
             setError(null)
             try {
                 const jwtToken = document.cookie.split(';').find(c => c.trim().startsWith('jwt='))?.split('=')[1]
-                const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://leaderboard-backend-4uxl.onrender.com'
+                const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
                 const leaderboardResponse = await axios.post(
                     `${API_BASE_URL}/api/student/leaderboard/`,
                     { event_id },
@@ -298,58 +317,98 @@ const LeaderBoardView = ({ view }: { view: string }) => {
     }, [view, event_id])
 
     const getStatusDisplay = (student: Student, index: number, students: Student[]) => {
-        if (index === 0) {
-            if (students.length > 1) {
-                const secondStudent = students[1]
-                const difference = student.points - secondStudent.points
-                return {
-                    text: `${Math.abs(difference)} PTS`,
-                    icon: "↑",
-                    color: "text-green-600",
+        const actualRank = index + 1
+
+        // Status display for the status column
+        let pointsText = ""
+        let pointsIcon: string | JSX.Element = ""
+        let pointsColor = "text-green-600"
+
+        // Tooltip message
+        let tooltipText = ""
+        let tooltipIcon: JSX.Element = <Rocket size={16} />
+        let tooltipColor = "text-green-600"
+
+        // Check if the current student has zero points
+        if (student.points === 0) {
+            pointsText = "💤 Start Progressing"
+            pointsIcon = ""
+            pointsColor = "text-green-600"
+            tooltipText = "Start completing tasks to climb the leaderboard!"
+            tooltipIcon = <Rocket size={16} />
+            tooltipColor = "text-green-600"
+        } else if (index === 0 || (students[0].points === student.points)) {
+            // Top rank or tied for top
+            pointsText = `🏆 #1 Rank`
+            pointsIcon = ""
+            pointsColor = "text-yellow-600"
+            tooltipText = `${student.name} is a champion!`
+            tooltipIcon = <Trophy size={16} />
+            tooltipColor = "text-yellow-600"
+        } else {
+            // Check if the current student's score matches the previous student's score
+            if (index > 0 && students[index - 1].points === student.points) {
+                // Tied with the previous student
+                pointsText = `🛡️ Tied - Need +1`
+                pointsIcon = ""
+                pointsColor = "text-blue-600"
+                const pointsToNext = 1
+                tooltipText = `Break tie with ${pointsToNext}+ points to take rank ${actualRank - 1}.`
+                tooltipIcon = <Shield size={16} />
+                tooltipColor = "text-blue-600"
+            } else {
+                // Find the most recent previous student with a different score
+                let previousDifferentStudent: Student | null = null
+                let previousRank = actualRank
+                for (let i = index - 1; i >= 0; i--) {
+                    if (students[i].points !== student.points) {
+                        previousDifferentStudent = students[i]
+                        previousRank = i + 1
+                        break
+                    }
+                }
+
+                if (!previousDifferentStudent) {
+                    // No previous student with a different score (all above are tied)
+                    pointsText = `🛡️ Tied - Need +1`
+                    pointsIcon = ""
+                    pointsColor = "text-blue-600"
+                    const pointsToNext = 1
+                    tooltipText = `Break tie with ${pointsToNext}+ points to take rank ${actualRank - 1}.`
+                    tooltipIcon = <Shield size={16} />
+                    tooltipColor = "text-blue-600"
+                } else {
+                    const nextHigherStudent = previousDifferentStudent
+                    const nextHigherRank = previousRank
+                    const pointsNeeded = nextHigherStudent.points - student.points + 1
+                    pointsText = `🚀Needs +${pointsNeeded} Pts to Rank ${actualRank - 1} ↑`
+                    pointsIcon = ""
+                    pointsColor = "text-green-600"
+                    tooltipText = `${student.name} needs ${pointsNeeded} more points to overtake rank ${nextHigherRank}.`
+                    tooltipIcon = <Rocket size={16} />
+                    tooltipColor = "text-green-600"
                 }
             }
-            return {
-                text: `${student.points} PTS`,
-                icon: "↑",
-                color: "text-green-600",
-            }
         }
 
-        let previousDifferentStudent: Student | null = null
-        for (let i = index - 1; i >= 0; i--) {
-            if (students[i].points !== student.points) {
-                previousDifferentStudent = students[i]
-                break
-            }
-        }
-
-        if (!previousDifferentStudent) {
-            return {
-                text: `0 PTS`,
-                icon: "↑",
-                color: "text-green-600",
-            }
-        }
-
-        const difference = student.points - previousDifferentStudent.points
-        if (difference > 0) {
-            return {
-                text: `${difference} PTS`,
-                icon: "↑",
-                color: "text-green-600",
-            }
-        } else {
-            return {
-                text: `${Math.abs(difference)} PTS`,
-                icon: "↓",
-                color: "text-red-600",
-            }
+        return {
+            points: {
+                text: pointsText,
+                icon: pointsIcon,
+                color: pointsColor,
+            },
+            tooltip: {
+                text: tooltipText,
+                icon: tooltipIcon,
+                color: tooltipColor,
+            },
         }
     }
 
     const getFilteredStudents = () => {
         const apiList = leaderboardData[view as 'overall'] || []
         return apiList
+            .filter((student: any) => student.name && student.name.trim() !== "")
             .map((student: any, idx: number) => ({
                 id: student._id,
                 rank: idx + 1,
@@ -368,6 +427,10 @@ const LeaderBoardView = ({ view }: { view: string }) => {
     }
 
     const filteredStudents = getFilteredStudents()
+
+    const handleStudentClick = (studentId: string) => {
+        navigate(`/student/${studentId}`)
+    }
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-amber-50 to-orange-50">
@@ -446,7 +509,6 @@ const LeaderBoardView = ({ view }: { view: string }) => {
                                 Overall
                             </button>
                         </Link>
-
                     </div>
 
                     {/* Student List */}
@@ -488,6 +550,7 @@ const LeaderBoardView = ({ view }: { view: string }) => {
                                             animationDelay: `${index * 100}ms`,
                                             animation: "fadeInUp 0.6s ease-out forwards",
                                         }}
+                                        onClick={() => handleStudentClick(student.id)}
                                     >
                                         <div className="p-6">
                                             <div className="flex items-center gap-4">
@@ -515,21 +578,9 @@ const LeaderBoardView = ({ view }: { view: string }) => {
                                                             <p className="text-gray-600 text-sm">Level {student.level}</p>
                                                         </div>
                                                         <div className="text-right">
-                                                            {view === "weekly" ? (
-                                                                <div className="flex items-center gap-1">
-                                                                    <span className={`font-bold text-xl ${statusInfo.color}`}>
-                                                                        {statusInfo.text}
-                                                                    </span>
-                                                                    <span className={`text-xl ${statusInfo.color}`}>
-                                                                        {statusInfo.icon}
-                                                                    </span>
-                                                                </div>
-                                                            ) : (
-                                                                <>
-                                                                    <div className="text-gray-900 font-bold text-xl">{student.points.toLocaleString()}</div>
-                                                                    <div className="text-gray-500 text-sm">Points</div>
-                                                                </>
-                                                            )}
+                                                            <div className="font-bold text-lg text-gray-900">
+                                                                {student.points.toLocaleString()} pts
+                                                            </div>
                                                         </div>
                                                     </div>
 
@@ -554,18 +605,36 @@ const LeaderBoardView = ({ view }: { view: string }) => {
                                                             })}
                                                         </div>
 
-                                                        {/* Secondary Info */}
+                                                        {/* Status */}
                                                         <div className="flex items-center gap-1">
-                                                            {view === "weekly" ? (
-                                                                <div className="text-gray-500 text-sm">{student.points.toLocaleString()} pts total</div>
-                                                            ) : (
-                                                                <div className="flex items-center gap-1">
-                                                                    <TrendingUp className={`w-4 h-4 ${statusInfo.color}`} />
-                                                                    <span className={`text-sm font-medium ${statusInfo.color}`}>
-                                                                        {statusInfo.text} {statusInfo.icon}
-                                                                    </span>
+                                                            <div
+                                                                className="group relative flex items-center space-x-2 cursor-pointer"
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation()
+                                                                    setOpenTooltipId(openTooltipId === student.id ? null : student.id)
+                                                                }}
+                                                                ref={(el) => {
+                                                                    if (el) tooltipRefs.current.set(student.id, el)
+                                                                    else tooltipRefs.current.delete(student.id)
+                                                                }}
+                                                            >
+                                                                <span className={`text-sm font-medium ${statusInfo.points.color}`}>
+                                                                    {statusInfo.points.text}
+                                                                </span>
+                                                                <span className={`text-sm ${statusInfo.points.color}`}>
+                                                                    {statusInfo.points.icon}
+                                                                </span>
+                                                                {openTooltipId === student.id && (
+                                                                    <div className="absolute bottom-full mb-2 w-max max-w-xs bg-gray-800 text-white text-xs rounded-lg py-2 px-3 shadow-lg flex items-center space-x-2">
+                                                                        <span className={statusInfo.tooltip.color}>{statusInfo.tooltip.icon}</span>
+                                                                        <span>{statusInfo.tooltip.text}</span>
+                                                                    </div>
+                                                                )}
+                                                                <div className="absolute hidden group-hover:flex bottom-full mb-2 w-max max-w-xs bg-gray-800 text-white text-xs rounded-lg py-2 px-3 shadow-lg items-center space-x-2">
+                                                                    <span className={statusInfo.tooltip.color}>{statusInfo.tooltip.icon}</span>
+                                                                    <span>{statusInfo.tooltip.text}</span>
                                                                 </div>
-                                                            )}
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -580,44 +649,44 @@ const LeaderBoardView = ({ view }: { view: string }) => {
             </div>
 
             <style>{`
-        @keyframes fadeInUp {
-          from {
-            opacity: 0;
-            transform: translateY(30px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
+                @keyframes fadeInUp {
+                    from {
+                        opacity: 0;
+                        transform: translateY(30px);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: translateY(0);
+                    }
+                }
 
-        @keyframes blob {
-          0% {
-            transform: translate(0px, 0px) scale(1);
-          }
-          33% {
-            transform: translate(30px, -50px) scale(1.1);
-          }
-          66% {
-            transform: translate(-20px, 20px) scale(0.9);
-          }
-          100% {
-            transform: translate(0px, 0px) scale(1);
-          }
-        }
+                @keyframes blob {
+                    0% {
+                        transform: translate(0px, 0px) scale(1);
+                    }
+                    33% {
+                        transform: translate(30px, -50px) scale(1.1);
+                    }
+                    66% {
+                        transform: translate(-20px, 20px) scale(0.9);
+                    }
+                    100% {
+                        transform: translate(0px, 0px) scale(1);
+                    }
+                }
 
-        .animate-blob {
-          animation: blob 7s infinite;
-        }
+                .animate-blob {
+                    animation: blob 7s infinite;
+                }
 
-        .animation-delay-2000 {
-          animation-delay: 2s;
-        }
+                .animation-delay-2000 {
+                    animation-delay: 2s;
+                }
 
-        .animation-delay-4000 {
-          animation-delay: 4s;
-        }
-      `}</style>
+                .animation-delay-4000 {
+                    animation-delay: 4s;
+                }
+            `}</style>
         </div>
     )
 }
@@ -626,45 +695,16 @@ const LeaderBoardView = ({ view }: { view: string }) => {
 export default function LeaderBoard() {
     const location = useLocation()
     const { view, studentId } = useParams()
-    const [leaderboardData, setLeaderboardData] = useState<{ overall: any[]; weekly: any[]; monthly: any[] }>({ overall: [], weekly: [], monthly: [] })
+    // Using only the state variable without the setter since we're not updating it
+    const [leaderboardData] = useState<{ overall: any[]; weekly: any[]; monthly: any[] }>({ overall: [], weekly: [], monthly: [] })
 
-    useEffect(() => {
-        const fetchLeaderboard = async () => {
-            try {
-                const jwtToken = document.cookie.split(';').find(c => c.trim().startsWith('jwt='))?.split('=')[1]
-                const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://leaderboard-backend-4uxl.onrender.com'
-                const leaderboardResponse = await axios.post(
-                    `${API_BASE_URL}/api/student/leaderboard/`,
-                    {},
-                    {
-                        headers: {
-                            "Content-Type": "application/json",
-                            Authorization: `Bearer ${jwtToken}`,
-                        },
-                    }
-                )
-                if (leaderboardResponse.data.success) {
-                    setLeaderboardData({
-                        overall: leaderboardResponse.data.overall || [],
-                        weekly: leaderboardResponse.data.weekly || [],
-                        monthly: leaderboardResponse.data.monthly || [],
-                    })
-                }
-            } catch (err) {
-                console.error("Failed to fetch leaderboard data:", err)
-            }
-        }
-        fetchLeaderboard()
-    }, [])
-
-    // Check if we're on a student profile page
-    if (location.pathname.startsWith("/student/") && studentId) {
-        // Find student data from the leaderboard
-        const student = leaderboardData?.overall?.find((s: any) => s._id === studentId);
-        if (student) {
-            const formattedStudent: Student = {
+    const getFilteredStudents = () => {
+        const apiList = leaderboardData[view as 'overall'] || []
+        return apiList
+            .filter((student: any) => student.name && student.name.trim() !== "")
+            .map((student: any, idx: number) => ({
                 id: student._id,
-                rank: 0,
+                rank: idx + 1,
                 name: student.name || student.email || "Unknown",
                 level: student.level || 1,
                 points: student.total_score || 0,
@@ -676,22 +716,31 @@ export default function LeaderBoard() {
                 joinDate: student.joinDate || '',
                 streak: student.streak || 0,
                 weeklyChange: student.weeklyChange || 0,
-            };
-            return <StudentProfile student={formattedStudent} />;
-        }
-        return (
-            <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-amber-50 to-orange-50 flex items-center justify-center">
-                <div className="bg-white/90 backdrop-blur-sm border border-white/20 p-8 rounded-3xl text-center shadow-2xl">
-                    <h2 className="text-gray-900 text-2xl font-bold mb-4">Student Profile</h2>
-                    <p className="text-gray-600 mb-4">Student ID: {studentId}</p>
-                    <Link to="/leaderboard/overall">
-                        <button className="bg-gradient-to-r from-yellow-400 via-amber-400 to-orange-400 hover:from-yellow-500 hover:via-amber-500 hover:to-orange-500 text-black px-6 py-2 rounded-xl transition-colors shadow-lg font-semibold">
-                            Back to Leaderboard
-                        </button>
-                    </Link>
+            }))
+    }
+
+    const filteredStudents = getFilteredStudents()
+
+    // Check if we're on a student profile page
+    if (location.pathname.startsWith("/student/") && studentId) {
+        const student = filteredStudents.find((s: Student) => s.id === studentId)
+
+        if (!student) {
+            return (
+                <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-amber-50 to-orange-50 flex items-center justify-center">
+                    <div className="bg-white/90 backdrop-blur-sm border border-white/20 p-8 rounded-3xl text-center shadow-2xl">
+                        <h2 className="text-gray-900 text-2xl font-bold mb-4">Student Not Found</h2>
+                        <Link to="/leaderboard/overall">
+                            <button className="bg-gradient-to-r from-yellow-400 via-amber-400 to-orange-400 hover:from-yellow-500 hover:via-amber-500 hover:to-orange-500 text-black px-6 py-2 rounded-xl transition-colors shadow-lg font-semibold">
+                                Back to Leaderboard
+                            </button>
+                        </Link>
+                    </div>
                 </div>
-            </div>
-        )
+            )
+        }
+
+        return <StudentProfile student={student} />
     }
 
     // Default to leaderboard view

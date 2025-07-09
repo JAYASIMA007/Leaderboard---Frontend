@@ -40,7 +40,7 @@ const AdminDashboard: React.FC = () => {
   };
 
   const renderTopNav = () => (
-    <div className="relative bg-gradient-to-r from-yellow-500 via-amber-500 to-orange-500 shadow-xl">
+    <div className="relative bg-gradient-to-r from-yellow-400 via-amber-500 to-yellow-500 shadow-xl">
       {/* Background Pattern */}
       <div className="absolute inset-0 bg-black/10">
         <div
@@ -84,14 +84,14 @@ const AdminDashboard: React.FC = () => {
           </div>
 
           {/* Right Section */}
-          <div className="flex items-center space-x-2 sm:space-x-3">
+          <div className="fixed top-4 right-4 sm:top-6 sm:right-6 z-50">
             <button
               onClick={handleLogout}
-              className="flex items-center px-3 py-2 sm:px-4 sm:py-2.5 bg-white/95 hover:bg-white text-gray-700 hover:text-red-600 rounded-lg text-sm sm:text-base font-semibold transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-105"
+              className="flex items-center px-3 py-2 sm:px-4 sm:py-2.5 bg-white/90 hover:bg-white text-gray-700 hover:text-red-600 rounded-lg text-sm sm:text-base font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 backdrop-blur-md border border-yellow-300/50"
               aria-label="Logout"
             >
               <LogOut className="w-4 h-4 sm:w-5 sm:h-5 mr-1 sm:mr-2" />
-              <span className="hidden sm:inline">Logout</span>
+              <span className=" sm:inline">Logout</span>
             </button>
           </div>
         </div>

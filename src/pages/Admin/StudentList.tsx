@@ -30,7 +30,7 @@ const StudentList: React.FC = () => {
         if (!token) {
           throw new Error("JWT token not found in cookies")
         }
-        const response = await axios.get(`https://leaderboard-backend-4uxl.onrender.com/api/admin/get_students_details/${event_id}/`, {
+        const response = await axios.get(`http://127.0.0.1:8000/api/admin/get_students_details/${event_id}/`, {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
@@ -67,7 +67,9 @@ const StudentList: React.FC = () => {
   )
 
   // Get unique departments from complete students
-  const departments = Array.from(new Set(completeStudents.map((student) => student.department)))
+  const departments = Array.from(
+    new Set(completeStudents.map((student) => student.department || ""))
+  ).filter(Boolean) as string[]
 
   // Filter complete students
   const filteredCompleteStudents = completeStudents.filter((student) => {
@@ -191,13 +193,11 @@ const StudentList: React.FC = () => {
                 aria-label="Filter students by department"
               >
                 <option value="all">All Departments</option>
-                {departments
-                  .filter((dept): dept is string => dept !== null && dept !== undefined)
-                  .map((dept) => (
-                    <option key={dept} value={dept}>
-                      {dept}
-                    </option>
-                  ))}
+                {departments.map((dept) => (
+                  <option key={dept} value={dept}>
+                    {dept}
+                  </option>
+                ))}
               </select>
             </div>
 
