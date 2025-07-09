@@ -41,7 +41,7 @@ const Navbar: React.FC<NavbarProps> = ({ onEventSelect }) => {
         const jwtToken = getJwtToken();
         if (!jwtToken) throw new Error("Authentication required. Please login again.");
 
-        const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+        const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://leaderboard-backend-4uxl.onrender.com";
         const response = await fetch(`${API_BASE_URL}/api/student/get-tasks/`, {
           method: "GET",
           headers: {
