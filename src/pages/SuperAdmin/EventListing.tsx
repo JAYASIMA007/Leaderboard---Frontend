@@ -117,6 +117,9 @@ const ViewTasks: React.FC = () => {
     navigate(`/superadmin/assign-users/${eventId}`)
   }
 
+  const handleEditEvent = (eventId: string) => {
+    navigate(`/superadmin/edit-event/${eventId}`)
+  }
 
   const handleDeleteEvent = async (eventId: string) => {
     if (window.confirm("Are you sure you want to delete this event? This action cannot be undone.")) {
@@ -170,33 +173,35 @@ const ViewTasks: React.FC = () => {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       {/* Header */}
       <div className="bg-gradient-to-r from-purple-100/80 via-indigo-100/80 to-blue-100/80 backdrop-blur-sm border-b border-white/20 shadow-md sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-3 sm:py-4 lg:py-5">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
-            <div className="flex items-center space-x-3 sm:space-x-4 w-full sm:w-auto">
-              <div className="relative w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg transform hover:scale-105 transition-transform duration-200 flex-shrink-0">
-                <div className="absolute inset-0 rounded-xl bg-blue-600 opacity-30 animate-pulse"></div>
-                <Layers className="w-5 h-5 sm:w-6 sm:h-6 text-white relative z-10" />
+        <div className="max-w-full px-3 sm:px-4 lg:px-6 py-3 sm:py-4 lg:py-6">
+          <div className="flex items-center justify-between gap-2 sm:gap-4">
+            {/* Title Section - Responsive */}
+            <div className="flex items-center space-x-2 sm:space-x-3 lg:space-x-4 flex-shrink-0 min-w-0">
+              <div className="relative w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center shadow-md transform hover:scale-105 transition-transform duration-200 flex-shrink-0">
+                <div className="absolute inset-0 rounded-lg bg-blue-600 opacity-30 animate-pulse"></div>
+                <Layers className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-white relative z-10" />
               </div>
-              <div className="min-w-0 flex-1">
-                <h1 className="text-lg sm:text-xl lg:text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent tracking-tight truncate">
+              <div className="min-w-0">
+                <h1 className="text-sm sm:text-base lg:text-xl xl:text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent tracking-tight truncate">
                   View All Tasks
                 </h1>
-                <p className="text-xs sm:text-sm text-gray-500 font-medium">
-                  Browse all task documents with levels, tasks, and subtasks
+                <p className="text-xs sm:text-sm text-gray-500 font-medium hidden sm:block">
+                  Browse all task documents
                 </p>
               </div>
             </div>
+
+            {/* Back Button - Responsive */}
             <button
               onClick={() => navigate("/superadmin/dashboard")}
-              className="flex items-center text-slate-600 hover:text-slate-900 bg-white/80 hover:bg-white rounded-lg px-2 sm:px-3 py-2 text-xs sm:text-sm font-medium transition-all duration-200 shadow-sm hover:shadow-md self-end sm:self-auto"
+              className="flex items-center text-slate-600 hover:text-slate-900 bg-white/90 hover:bg-white rounded-xl px-2 sm:px-4 lg:px-5 py-2 sm:py-2.5 lg:py-3 text-xs sm:text-sm lg:text-base font-medium transition-all duration-300 shadow-lg hover:shadow-xl backdrop-blur-sm hover:scale-105 transform border border-white/20 whitespace-nowrap flex-shrink-0"
             >
-              <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-              <span>Back</span>
+              <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">Back</span>
             </button>
           </div>
         </div>
       </div>
-
       {/* Main Content */}
       <div className="max-w-7xl mx-auto p-3 sm:p-4 lg:p-6">
         <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 overflow-hidden">
@@ -213,12 +218,12 @@ const ViewTasks: React.FC = () => {
               placeholder="Search by event name or admin..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
-              className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="all">All Status</option>
               <option value="incomplete">Incomplete</option>
@@ -281,6 +286,13 @@ const ViewTasks: React.FC = () => {
 
                       {/* Action Buttons */}
                       <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
+                        <button
+                          onClick={() => handleEditEvent(taskDocument._id)}
+                          className="flex items-center justify-center px-3 sm:px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl text-xs sm:text-sm font-medium"
+                        >
+                          <Target className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                          Edit
+                        </button>
                         <button
                           onClick={() => handleDeleteEvent(taskDocument._id)}
                           className="flex items-center justify-center px-3 sm:px-4 py-2 bg-gradient-to-r from-red-600 to-pink-600 text-white rounded-lg hover:from-red-700 hover:to-pink-700 transition-all duration-200 shadow-lg hover:shadow-xl text-xs sm:text-sm font-medium"
@@ -405,8 +417,8 @@ const ViewTasks: React.FC = () => {
                                                   </div>
                                                   <span
                                                     className={`px-2 py-1 rounded-full text-xs font-medium flex-shrink-0 ${subtask.status === "incomplete"
-                                                        ? "bg-red-100 text-red-600"
-                                                        : "bg-green-100 text-green-600"
+                                                      ? "bg-red-100 text-red-600"
+                                                      : "bg-green-100 text-green-600"
                                                       }`}
                                                   >
                                                     {subtask.status}

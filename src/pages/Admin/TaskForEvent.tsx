@@ -72,7 +72,7 @@ const TaskForEvent: React.FC = () => {
           return
         }
         const response = await axios.post<{ tasks: Task[] }>(
-          `http://localhost:8000/api/admin/get_tasks/${event_id}/`,
+          `https://leaderboard-backend-4uxl.onrender.com/api/admin/get_tasks/${event_id}/`,
           {},
           {
             headers: { Authorization: `Bearer ${token}` },
