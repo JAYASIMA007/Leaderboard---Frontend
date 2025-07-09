@@ -100,7 +100,7 @@ const SuperAdminResetPassword: React.FC = () => {
 
     try {
       setIsLoading(true);
-      const response = await axios.post("https://leaderboard-backend-4uxl.onrender.com/api/superadmin/reset-password/", {
+      const response = await axios.post("http://13.54.119.187:8000/api/superadmin/reset-password/", {
         token,
         email,
         new_password: newPassword,

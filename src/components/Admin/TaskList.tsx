@@ -112,7 +112,7 @@ const TaskList: React.FC = () => {
           throw new Error("Admin ID not found in cookies");
         }
         const response = await axios.post<ApiResponse>(
-          "https://leaderboard-backend-4uxl.onrender.com/api/admin/fetch_grouped_tasks/",
+          "http://13.54.119.187:8000/api/admin/fetch_grouped_tasks/",
           { admin_name, admin_id }, // POST body
           {
             headers: {

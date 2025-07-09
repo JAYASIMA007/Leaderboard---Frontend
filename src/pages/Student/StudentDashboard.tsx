@@ -770,7 +770,7 @@ const StudentDashboard: React.FC = () => {
       const jwtToken = getJwtToken();
       if (!jwtToken) return;
 
-      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://leaderboard-backend-4uxl.onrender.com";
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://13.54.119.187:8000";
 
       const response = await fetch(`${API_BASE_URL}/api/student/student-streaks/`, {
         method: "POST",
@@ -814,7 +814,7 @@ const StudentDashboard: React.FC = () => {
         throw new Error("Authentication required. Please login again.");
       }
 
-      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://leaderboard-backend-4uxl.onrender.com";
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://13.54.119.187:8000";
 
       // 1️⃣ Fetch Event Points
       const eventPointsResponse = await axios.get(`${API_BASE_URL}/api/student/events/${eventId}/points/`, {

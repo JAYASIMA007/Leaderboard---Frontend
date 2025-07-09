@@ -18,7 +18,7 @@ export function SignupPage() {
     e.preventDefault();
     try {
 
-      await axios.post("https://leaderboard-backend-4uxl.onrender.com/api/admin/signup/", { name, email, password, college_name: "SNSCT" });
+      await axios.post("http://13.54.119.187:8000/api/admin/signup/", { name, email, password, college_name: "SNSCT" });
       navigate("/admin"); // Navigate to admin page on success
       // Handle successful signup, e.g., redirect or show success message
       

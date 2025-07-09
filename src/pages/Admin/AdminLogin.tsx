@@ -57,7 +57,7 @@ const AdminLogin = () => {
     setErrors({});
 
     try {
-      const response = await axios.post("https://leaderboard-backend-4uxl.onrender.com/api/admin/signin/", {
+      const response = await axios.post("http://13.54.119.187:8000/api/admin/signin/", {
         email,
         password,
       });

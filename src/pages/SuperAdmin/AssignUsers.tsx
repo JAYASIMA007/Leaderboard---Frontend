@@ -34,7 +34,7 @@ const AssignUsers: React.FC = () => {
         setError("")
 
         // Fetch task details
-        const taskResponse = await axios.get(`https://leaderboard-backend-4uxl.onrender.com/api/superadmin/fetch_all_tasks/`)
+        const taskResponse = await axios.get(`http://13.54.119.187:8000/api/superadmin/fetch_all_tasks/`)
         console.log("Task response:", taskResponse.data)
         // Change this line to look for _id instead of event_id
         const taskData = taskResponse.data.tasks.find((t: any) => t._id === eventId)
@@ -55,7 +55,7 @@ const AssignUsers: React.FC = () => {
 
         // Fetch assigned users from Mapped_Events - keep using eventId as it's correct
         try {
-          const mappedResponse = await axios.get(`https://leaderboard-backend-4uxl.onrender.com/api/superadmin/fetch_mapped_events/${eventId}`)
+          const mappedResponse = await axios.get(`http://13.54.119.187:8000/api/superadmin/fetch_mapped_events/${eventId}`)
           console.log("Mapped events response:", mappedResponse.data)
           const mappedData = mappedResponse.data
           if (mappedData && mappedData.assigned_admins) {
@@ -133,7 +133,7 @@ const AssignUsers: React.FC = () => {
         email: emailToRemove,
       }
 
-      const response = await axios.post("https://leaderboard-backend-4uxl.onrender.com/api/superadmin/remove_user/", payload)
+      const response = await axios.post("http://13.54.119.187:8000/api/superadmin/remove_user/", payload)
       setSuccess(response.data.message)
     } catch (err: any) {
       console.error("Error removing email:", err)
@@ -169,7 +169,7 @@ const handleSubmit = async (e: React.FormEvent) => {
       assignments,
     }
     console.log("Submitting payload:", payload)
-    const response = await axios.post("https://leaderboard-backend-4uxl.onrender.com/api/superadmin/assign_users/", payload)
+    const response = await axios.post("http://13.54.119.187:8000/api/superadmin/assign_users/", payload)
     console.log("Assign users response:", response.data)
     setSuccess(response.data.message)
     setTimeout(() => navigate("/superadmin/EventListing"), 2000)

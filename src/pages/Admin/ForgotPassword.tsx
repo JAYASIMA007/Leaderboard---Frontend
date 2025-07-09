@@ -21,7 +21,7 @@ const ForgotPassword: React.FC = () => {
     try {
       setIsLoading(true);
       setError('');
-      const response = await fetch('https://leaderboard-backend-4uxl.onrender.com/api/admin/send-reset-link/', {
+      const response = await fetch('http://13.54.119.187:8000/api/admin/send-reset-link/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -55,7 +55,7 @@ const ForgotPassword: React.FC = () => {
     try {
       setIsLoading(true);
       setError('');
-      const response = await fetch('https://leaderboard-backend-4uxl.onrender.com/api/send-reset-link/', {
+      const response = await fetch('http://13.54.119.187:8000/api/send-reset-link/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

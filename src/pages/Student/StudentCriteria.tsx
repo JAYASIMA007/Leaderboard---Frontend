@@ -99,7 +99,7 @@ const StudentCriteria: React.FC = () => {
         task_ids: taskIds
       });
 
-      const response = await fetch('https://leaderboard-backend-4uxl.onrender.com/api/student/points_by_eventid/', {
+      const response = await fetch('http://13.54.119.187:8000/api/student/points_by_eventid/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -138,7 +138,7 @@ const StudentCriteria: React.FC = () => {
         setError(null);
 
         // Fetch initial event data from the task details API
-        const eventResponse = await fetch(`https://leaderboard-backend-4uxl.onrender.com/api/student/task-details/?event_id=${passedEventId}`);
+        const eventResponse = await fetch(`http://13.54.119.187:8000/api/student/task-details/?event_id=${passedEventId}`);
         if (!eventResponse.ok) {
           throw new Error(`HTTP error: ${eventResponse.status}`);
         }

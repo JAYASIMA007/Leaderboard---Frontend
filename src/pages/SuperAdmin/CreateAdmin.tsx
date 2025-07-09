@@ -81,7 +81,7 @@ const CreateAdmin: React.FC = () => {
     try {
       // Send data to backend using axios
       const response = await axios.post(
-        "https://leaderboard-backend-4uxl.onrender.com/api/superadmin/create-admin/",
+        "http://13.54.119.187:8000/api/superadmin/create-admin/",
         {
           name: formData.name.trim(),
           email: formData.emailId.trim(),

@@ -132,7 +132,7 @@ const LeadershipProfile: React.FC = () => {
         throw new Error('No JWT token found');
       }
 
-      const response = await axios.post('https://leaderboard-backend-4uxl.onrender.com/api/student/get-data/', {
+      const response = await axios.post('http://13.54.119.187:8000/api/student/get-data/', {
         token: token
       }, {
         headers: {
@@ -289,7 +289,7 @@ const LeadershipProfile: React.FC = () => {
       try {
         const jwt = getCookie('jwt');
         if (!jwt) return;
-        const response = await axios.get('https://leaderboard-backend-4uxl.onrender.com/api/student/total_points_of_user/', {
+        const response = await axios.get('http://13.54.119.187:8000/api/student/total_points_of_user/', {
           headers: {
             Authorization: `Bearer ${jwt}`,
           },

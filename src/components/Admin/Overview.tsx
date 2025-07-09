@@ -72,7 +72,7 @@ const Overview: React.FC = () => {
         }
 
         const response = await axios.post<{ events: Event[] }>(
-          "https://leaderboard-backend-4uxl.onrender.com/api/admin/get_events/",
+          "http://13.54.119.187:8000/api/admin/get_events/",
           {},
           {
             headers: {

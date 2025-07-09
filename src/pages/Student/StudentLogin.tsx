@@ -30,7 +30,7 @@ const StudentLogin = ({ onLogin }: StudentLoginProps) => {
   const [isTransitioning, setIsTransitioning] = useState(false);
   
   const navigate = useNavigate();
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://leaderboard-backend-4uxl.onrender.com';
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://13.54.119.187:8000';
 
   const images = [loginScattered11, loginScattered22, loginScattered33];
 
