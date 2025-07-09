@@ -3,7 +3,7 @@ import { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
 import axios from "axios"
 import Cookies from "js-cookie"
-import { User, Building2, Hash, Mail, Loader2, AlertCircle, Users, GraduationCap, Search, Filter, Download, Star, Award } from 'lucide-react'
+import { User, Building2, Hash, Mail, Loader2, AlertCircle, Users, GraduationCap, Search, Filter, Star, Award } from 'lucide-react'
 
 interface Student {
   _id: string
