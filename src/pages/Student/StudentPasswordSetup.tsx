@@ -81,7 +81,7 @@ const StudentPasswordSetup: React.FC = () => {
     // Validate token
     const validateToken = async () => {
       try {
-        await axios.get(`http://13.54.119.187:8000/api/student/validate-token/?token=${token}`);
+        await axios.get(`https://leaderboard-backend-4uxl.onrender.com/api/student/validate-token/?token=${token}`);
       } catch {
         setError("Invalid or expired setup link.");
       }
@@ -111,7 +111,7 @@ const StudentPasswordSetup: React.FC = () => {
 
     try {
       setIsLoading(true);
-      const response = await axios.post("http://13.54.119.187:8000/api/student/set-password/", {
+      const response = await axios.post("https://leaderboard-backend-4uxl.onrender.com/api/student/set-password/", {
         token,
         password,
       });

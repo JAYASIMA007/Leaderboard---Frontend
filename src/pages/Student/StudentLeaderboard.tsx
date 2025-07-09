@@ -61,7 +61,7 @@ const StudentLeaderboard: React.FC<StudentLeaderboardProps> = ({ onEventSelect }
   const [openTooltipId, setOpenTooltipId] = useState<string | null>(null)
   const tooltipRefs = useRef<Map<string, HTMLDivElement>>(new Map())
 
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://13.54.119.187:8000"
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://leaderboard-backend-4uxl.onrender.com"
 
   // Close tooltip when clicking outside
   useEffect(() => {

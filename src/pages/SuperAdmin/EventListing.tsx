@@ -75,7 +75,7 @@ const ViewTasks: React.FC = () => {
     const fetchTasks = async () => {
       try {
         setLoading(true)
-        const response = await axios.get("http://13.54.119.187:8000/api/superadmin/fetch_all_tasks/")
+        const response = await axios.get("https://leaderboard-backend-4uxl.onrender.com/api/superadmin/fetch_all_tasks/")
         setTasks(response.data.tasks)
         setFilteredTasks(response.data.tasks)
       } catch (err: any) {
@@ -125,7 +125,7 @@ const ViewTasks: React.FC = () => {
     if (window.confirm("Are you sure you want to delete this event? This action cannot be undone.")) {
       try {
         setLoading(true)
-        await axios.delete(`http://13.54.119.187:8000/api/superadmin/delete_task/${eventId}/`)
+        await axios.delete(`https://leaderboard-backend-4uxl.onrender.com/api/superadmin/delete_task/${eventId}/`)
         setTasks(tasks.filter((task) => task._id !== eventId))
         setFilteredTasks(filteredTasks.filter((task) => task._id !== eventId))
         alert("Event deleted successfully")

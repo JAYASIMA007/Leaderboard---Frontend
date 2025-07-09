@@ -146,7 +146,7 @@ const TaskReport: React.FC = () => {
 
         // Fetch task details
         const taskRes = await axios.post<{ tasks: Task[] }>(
-          `http://13.54.119.187:8000/api/admin/get_tasks/${event_id}/`,
+          `https://leaderboard-backend-4uxl.onrender.com/api/admin/get_tasks/${event_id}/`,
           {},
           {
             headers: { Authorization: `Bearer ${token}` },
@@ -170,7 +170,7 @@ const TaskReport: React.FC = () => {
 
         // Fetch points data which contains student information
         const pointsRes = await axios.get<{ points: StudentPoint[] }>(
-          `http://13.54.119.187:8000/api/admin/manage_task_points/${event_id}/${task_id}/`,
+          `https://leaderboard-backend-4uxl.onrender.com/api/admin/manage_task_points/${event_id}/${task_id}/`,
           {
             headers: { Authorization: `Bearer ${token}` },
             withCredentials: true,
@@ -187,7 +187,7 @@ const TaskReport: React.FC = () => {
           console.log("No points data found, attempting to fetch students from alternative endpoint...")
           try {
             const studentsRes = await axios.get<{ students: Student[] }>(
-              `http://13.54.119.187:8000/api/admin/getstudent_task_report/${event_id}/${admin_id}/`,
+              `https://leaderboard-backend-4uxl.onrender.com/api/admin/getstudent_task_report/${event_id}/${admin_id}/`,
               {
                 headers: { Authorization: `Bearer ${token}` },
                 withCredentials: true,
@@ -342,7 +342,7 @@ const TaskReport: React.FC = () => {
 
       console.log("Submitting payload for context:", payload)
       const submitResponse = await axios.post(
-        `http://13.54.119.187:8000/api/admin/manage_task_points/${task.event_id}/${task.task_id}/`,
+        `https://leaderboard-backend-4uxl.onrender.com/api/admin/manage_task_points/${task.event_id}/${task.task_id}/`,
         payload,
         {
           headers: {
@@ -357,7 +357,7 @@ const TaskReport: React.FC = () => {
 
       // Refresh the points data after successful submission
       const pointsRes = await axios.get<{ points: StudentPoint[] }>(
-        `http://13.54.119.187:8000/api/admin/manage_task_points/${task.event_id}/${task.task_id}/`,
+        `https://leaderboard-backend-4uxl.onrender.com/api/admin/manage_task_points/${task.event_id}/${task.task_id}/`,
         {
           headers: { Authorization: `Bearer ${token}` },
           withCredentials: true,
@@ -481,7 +481,7 @@ const TaskReport: React.FC = () => {
       console.log("Refreshing points data...")
       setIsRefreshing(true)
       const pointsRes = await axios.get<{ points: StudentPoint[] }>(
-        `http://13.54.119.187:8000/api/admin/manage_task_points/${event_id}/${task_id}/`,
+        `https://leaderboard-backend-4uxl.onrender.com/api/admin/manage_task_points/${event_id}/${task_id}/`,
         {
           headers: { Authorization: `Bearer ${token}` },
           withCredentials: true,

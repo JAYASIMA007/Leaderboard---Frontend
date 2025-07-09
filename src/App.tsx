@@ -30,11 +30,6 @@ import LeaderBoard from "../src/pages/Admin/LeaderBoard";
 import SuperAdminLeaderBoard from './pages/SuperAdmin/SuperAdminLeaderboard';
 
 function App() {
-  const handleLogin = () => {
-    // Handle login logic here
-    console.log('Login successful');
-  };
-
   return (
     <Router>
       <Routes>
@@ -56,7 +51,7 @@ function App() {
         <Route path="/superadmin/edit-event/:eventId" element={<CreateEvent />} />
 
         {/* Student Routes */}
-        <Route path="/studentlogin" element={<StudentLogin onLogin={handleLogin} />} />
+        <Route path="/studentlogin" element={<StudentLogin onLogin={() => {}} />} />
         <Route path="/studentsignup" element={<StudentSignup />} />
         <Route path="/student/setup-password" element={<StudentPasswordSetup />} />
         <Route path="/studentdashboard" element={<StudentDashboard />} />

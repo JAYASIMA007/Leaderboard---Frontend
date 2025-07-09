@@ -135,7 +135,7 @@ const StudentUpload: React.FC = () => {
         setResult(null)
 
         try {
-            const response = await axios.post("http://13.54.119.187:8000/api/bulk_upload/", {
+            const response = await axios.post("https://leaderboard-backend-4uxl.onrender.com/api/bulk_upload/", {
                 students: validStudents,
             })
 

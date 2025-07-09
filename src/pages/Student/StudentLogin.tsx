@@ -1,7 +1,7 @@
-
 import { useState, useEffect } from 'react';
+import type { FormEvent, ChangeEvent } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import mail from '../../assets/mail.svg';
 import password from '../../assets/password.svg';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
@@ -15,22 +15,19 @@ import loginScattered11 from "../../assets/LoginImg1.png";
 import loginScattered22 from "../../assets/LoginImg2.png";
 import loginScattered33 from "../../assets/LoginImg3.png";
 
-interface StudentLoginProps {
-  onLogin: () => void;
-}
-
-const StudentLogin = ({ onLogin }: StudentLoginProps) => {
+const StudentLogin = ({ onLogin }: { onLogin: () => void }) => {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
   });
+  const [errorMessage, setErrorMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
   
   const navigate = useNavigate();
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://13.54.119.187:8000';
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://leaderboard-backend-4uxl.onrender.com';
 
   const images = [loginScattered11, loginScattered22, loginScattered33];
 
@@ -50,33 +47,20 @@ const StudentLogin = ({ onLogin }: StudentLoginProps) => {
     return () => clearInterval(slideInterval);
   }, [isTransitioning, images.length]);
 
-  interface FormData {
-    email: string;
-    password: string;
-  }
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
-    setFormData((prev: FormData) => ({
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setFormData((prev) => ({
       ...prev,
       [e.target.name]: e.target.value,
     }));
   };
 
-  interface LoginResponse {
-    name: string;
-    email: string;
-  }
-
-  interface ErrorResponse {
-    error?: string;
-  }
-
-  const handleLogin = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
+  const handleLogin = async (e: FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setErrorMessage('');
 
     try {
-      const response = await axios.post<LoginResponse>(
+      const response = await axios.post(
         `${API_BASE_URL}/api/student/login/`,
         formData,
         {
@@ -99,18 +83,20 @@ const StudentLogin = ({ onLogin }: StudentLoginProps) => {
         navigate('/student/dashboard');
         toast.success('Login successful!');
       }
-    } catch (error: unknown) {
-      const axiosError = error as { response?: { data?: ErrorResponse } };
-      console.log(axiosError.response?.data?.error || 'An error occurred during login.');
+    } catch (error) {
+      const axiosError = error as AxiosError<{error: string}>;
+      setErrorMessage(
+        axiosError.response?.data?.error || 'An error occurred during login.'
+      );
       toast.error('Wrong username or password.');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLFormElement>) => {
+  const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
-      handleLogin(e as unknown as React.FormEvent<HTMLFormElement>);
+      handleLogin(e);
     }
   };
 
@@ -121,6 +107,11 @@ const StudentLogin = ({ onLogin }: StudentLoginProps) => {
       {/* <h1 className='justify-start'>SNS ASSESSMENT PORTAL</h1> */}
       <div className="relative bg-white shadow-lg rounded-2xl flex flex-col lg:flex-row max-w-6xl w-full overflow-hidden">
         {/* Form Section */}
+        {errorMessage && (
+          <div className="text-red-500 text-sm mb-4 text-center">
+            {errorMessage}
+          </div>
+        )}
         <form
               onSubmit={handleLogin}
               onKeyDown={handleKeyDown}

@@ -133,7 +133,7 @@ const CreateTaskPage: React.FC = () => {
   useEffect(() => {
     const fetchAdmins = async () => {
       try {
-        const response = await axios.get("http://13.54.119.187:8000/api/superadmin/get_admins/")
+        const response = await axios.get("https://leaderboard-backend-4uxl.onrender.com/api/superadmin/get_admins/")
         setAdmins(response.data)
       } catch (err) {
         console.error("Fetch admins error:", err)
@@ -513,7 +513,7 @@ const CreateTaskPage: React.FC = () => {
         })),
       }
 
-      const response = await axios.post("http://13.54.119.187:8000/api/superadmin/create_task/", payload)
+      const response = await axios.post("https://leaderboard-backend-4uxl.onrender.com/api/superadmin/create_task/", payload)
       setResponseData(response.data)
       setSuccess(true)
       navigate("/superadmin/dashboard");

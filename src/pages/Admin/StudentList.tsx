@@ -30,7 +30,7 @@ const StudentList: React.FC = () => {
         if (!token) {
           throw new Error("JWT token not found in cookies")
         }
-        const response = await axios.get(`http://13.54.119.187:8000/api/admin/get_students_details/${event_id}/`, {
+        const response = await axios.get(`https://leaderboard-backend-4uxl.onrender.com/api/admin/get_students_details/${event_id}/`, {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",

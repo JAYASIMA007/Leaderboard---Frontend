@@ -47,7 +47,7 @@ const AdminForgotPassword: React.FC = () => {
         try {
           setIsLoading(true);
           console.log('Sending request to /api/admin/validate-reset-token/');
-          const response = await fetch(`http://13.54.119.187:8000/api/admin/validate-reset-token/?token=${encodeURIComponent(token)}`, {
+          const response = await fetch(`https://leaderboard-backend-4uxl.onrender.com/api/admin/validate-reset-token/?token=${encodeURIComponent(token)}`, {
             method: 'GET',
             headers: {
               'Content-Type': 'application/json',
@@ -120,7 +120,7 @@ const AdminForgotPassword: React.FC = () => {
     try {
       setIsLoading(true);
       setError('');
-      const response = await fetch('http://13.54.119.187:8000/api/admin/forgot-password/', {
+      const response = await fetch('https://leaderboard-backend-4uxl.onrender.com/api/admin/forgot-password/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -155,7 +155,7 @@ const AdminForgotPassword: React.FC = () => {
     try {
       setIsLoading(true);
       setError('');
-      const response = await fetch('http://13.54.119.187:8000/api/admin/forgot-password/', {
+      const response = await fetch('https://leaderboard-backend-4uxl.onrender.com/api/admin/forgot-password/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -221,7 +221,7 @@ const AdminForgotPassword: React.FC = () => {
     try {
       setIsLoading(true);
       setError('');
-      const response = await fetch('http://13.54.119.187:8000/api/admin/reset-password-for-forgot-password/', {
+      const response = await fetch('https://leaderboard-backend-4uxl.onrender.com/api/admin/reset-password-for-forgot-password/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

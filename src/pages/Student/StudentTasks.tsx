@@ -124,7 +124,7 @@ export default function Component() {
       if (!jwtToken) {
         throw new Error('Authentication required. Please login again.');
       }
-      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://13.54.119.187:8000';
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://leaderboard-backend-4uxl.onrender.com';
       const response = await fetch(`${API_BASE_URL}/api/student/tasks/`, {
         method: 'POST',
         headers: {
@@ -161,7 +161,7 @@ export default function Component() {
       if (!jwtToken) {
         throw new Error("Authentication required. Please login again.");
       }
-      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://13.54.119.187:8000";
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://leaderboard-backend-4uxl.onrender.com";
 
       const eventPointsResponse = await fetch(
         `${API_BASE_URL}/api/student/events/${eventId}/points/`,
