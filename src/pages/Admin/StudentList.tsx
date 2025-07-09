@@ -30,7 +30,7 @@ const StudentList: React.FC = () => {
         if (!token) {
           throw new Error("JWT token not found in cookies")
         }
-        const response = await axios.get(`https://leaderboard-backend-4uxl.onrender.com/api/admin/get_students_details/${event_id}/`, {
+        const response = await axios.get(`http://127.0.0.1:8000/api/admin/get_students_details/${event_id}/`, {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
@@ -144,7 +144,7 @@ const StudentList: React.FC = () => {
               <GraduationCap className="h-10 w-10 text-black" />
             </div>
             <h1 className="text-3xl h-20 sm:text-5xl lg:text-6xl font-bold mb-4 bg-gradient-to-r from-yellow-400 to-amber-500 bg-clip-text text-transparent">
-              User Directory
+              Members Directory
             </h1>
             <p className="text-gray-300 text-lg sm:text-xl mb-6 max-w-2xl mx-auto">
               Comprehensive overview of event participants and their academic details
@@ -152,7 +152,7 @@ const StudentList: React.FC = () => {
             <div className="flex flex-wrap items-center justify-center gap-6 text-yellow-400">
               <div className="flex items-center bg-white/10 rounded-full px-4 py-2 backdrop-blur-sm">
                 <Users className="h-5 w-5 mr-2" />
-                <span className="font-semibold">{filteredCompleteStudents.length} Users</span>
+                <span className="font-semibold">{filteredCompleteStudents.length} Members</span>
               </div>
               <div className="flex items-center bg-white/10 rounded-full px-4 py-2 backdrop-blur-sm">
                 <Building2 className="h-5 w-5 mr-2" />
@@ -160,7 +160,7 @@ const StudentList: React.FC = () => {
               </div>
               <div className="flex items-center bg-white/10 rounded-full px-4 py-2 backdrop-blur-sm">
                 <Award className="h-5 w-5 mr-2" />
-                <span className="font-semibold">{filteredNonLoggedInUsers.length} Non-Logged-In Users</span>
+                <span className="font-semibold">{filteredNonLoggedInUsers.length} Non-Logged-In Members</span>
               </div>
             </div>
           </div>
@@ -191,17 +191,16 @@ const StudentList: React.FC = () => {
                 aria-label="Filter students by department"
               >
                 <option value="all">All Departments</option>
-                {departments.map((dept) => (
-                  <option key={dept ?? ""} value={dept ?? ""}>
-                    {dept ?? "Unknown"}
-                  </option>
-                ))}
+                {departments
+                  .filter((dept): dept is string => dept !== null && dept !== undefined)
+                  .map((dept) => (
+                    <option key={dept} value={dept}>
+                      {dept}
+                    </option>
+                  ))}
               </select>
             </div>
-            <button className="w-full lg:w-auto bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-600 hover:to-amber-600 text-black font-semibold px-6 py-3 rounded-xl transition-all duration-300 flex items-center justify-center shadow-lg hover:shadow-xl">
-              <Download className="h-5 w-5 mr-2" />
-              Export
-            </button>
+
           </div>
         </div>
       </div>
@@ -217,7 +216,7 @@ const StudentList: React.FC = () => {
                 : "bg-white/90 text-gray-700 hover:bg-white"
             }`}
           >
-            Registered Users
+            Assigned Members
           </button>
           {nonLoggedInUsers.length > 0 && (
             <button
@@ -228,7 +227,7 @@ const StudentList: React.FC = () => {
                   : "bg-white/90 text-gray-700 hover:bg-white"
               }`}
             >
-              Non-Logged-In Users
+              Non-Logged-In Members
             </button>
           )}
         </div>
@@ -242,14 +241,14 @@ const StudentList: React.FC = () => {
               <div className="w-8 h-8 bg-gradient-to-r from-yellow-400 to-amber-500 rounded-lg flex items-center justify-center">
                 <Users className="w-4 h-4 text-black" />
               </div>
-              <h3 className="text-xl lg:text-2xl font-bold text-gray-900">Registered Users</h3>
+              <h3 className="text-xl lg:text-2xl font-bold text-gray-900">Assigned Members</h3>
             </div>
             {filteredCompleteStudents.length === 0 ? (
               <div className="text-center py-20">
                 <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-r from-yellow-100 to-amber-100 rounded-full mb-8 shadow-lg">
                   <Users className="h-12 w-12 text-yellow-600" />
                 </div>
-                <h3 className="text-3xl font-bold text-gray-900 mb-4">No Registered Users Found</h3>
+                <h3 className="text-3xl font-bold text-gray-900 mb-4">No Assigned Members Found</h3>
                 <p className="text-gray-600 text-lg max-w-md mx-auto">
                   {searchTerm || selectedDepartment !== "all"
                     ? "Try adjusting your search criteria or filters"
@@ -329,16 +328,16 @@ const StudentList: React.FC = () => {
               <div className="w-8 h-8 bg-gradient-to-r from-yellow-400 to-amber-500 rounded-lg flex items-center justify-center">
                 <Mail className="w-4 h-4 text-black" />
               </div>
-              <h3 className="text-xl lg:text-2xl font-bold text-gray-900">Non-Logged-In Users</h3>
+              <h3 className="text-xl lg:text-2xl font-bold text-gray-900">Non-Logged-In Members</h3>
             </div>
             {filteredNonLoggedInUsers.length === 0 ? (
               <div className="text-center py-20">
                 <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-r from-yellow-100 to-amber-100 rounded-full mb-8 shadow-lg">
                   <Mail className="h-12 w-12 text-yellow-600" />
                 </div>
-                <h3 className="text-3xl font-bold text-gray-900 mb-4">No Non-Logged-In Users Found</h3>
+                <h3 className="text-3xl font-bold text-gray-900 mb-4">No Non-Logged-In Members Found</h3>
                 <p className="text-gray-600 text-lg max-w-md mx-auto">
-                  {searchTerm ? "Try adjusting your search criteria" : "No non-logged-in users with only email details found"}
+                  {searchTerm ? "Try adjusting your search criteria" : "No non-logged-in members with only email details found"}
                 </p>
               </div>
             ) : (

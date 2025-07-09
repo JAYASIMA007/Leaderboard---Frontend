@@ -41,7 +41,7 @@ const Navbar: React.FC<NavbarProps> = ({ onEventSelect }) => {
         const jwtToken = getJwtToken();
         if (!jwtToken) throw new Error("Authentication required. Please login again.");
 
-        const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://leaderboard-backend-4uxl.onrender.com";
+        const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
         const response = await fetch(`${API_BASE_URL}/api/student/get-tasks/`, {
           method: "GET",
           headers: {
@@ -160,7 +160,7 @@ const Navbar: React.FC<NavbarProps> = ({ onEventSelect }) => {
               <select
                 onChange={handleChange}
                 value={selectedEvent}
-                className="bg-transparent text-white px-3 py-2 w-full pr-8 outline-none appearance-none"
+                className="bg-transparent text-white px-4 py-2 w-full pr-8 outline-none appearance-none"
                 style={{ backgroundColor: "transparent", color: "white" }}
               >
                 <option value="" disabled>
@@ -189,11 +189,11 @@ const Navbar: React.FC<NavbarProps> = ({ onEventSelect }) => {
               </svg>
             </div>
           </div>
-          <div className="flex items-center space-x-2 sm:space-x-4">
+          <div className="flex items-end space-x-2 sm:space-x-4">
             <div className="relative hidden sm:block" ref={dropdownRef}>
               <button
                 onClick={() => setShowProfileDropdown(!showProfileDropdown)}
-                className="flex items-center p-1 rounded-full hover:bg-gray-100 transition-colors"
+                className="flex items-center p-1 rounded-full hover:bg-gray-100 transition-colors ml-7"
               >
                 <img
                   src={sampleProfile}
