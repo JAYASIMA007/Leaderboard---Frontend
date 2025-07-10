@@ -91,7 +91,6 @@ const StudentCriteria: React.FC = () => {
       if (!jwt) {
         throw new Error('JWT token not found. Please log in again.');
       }
-
       console.log('Sending data:', {
         event_id: eventId,
         jwt: jwt,
@@ -118,6 +117,21 @@ const StudentCriteria: React.FC = () => {
 
       const data = await response.json();
       console.log('Received data:', data);
+
+      if (data.error && data.error === "Event not found") {
+        // If points are not allocated, return a default progress data with 0 progress
+        return {
+          level_id: levelId,
+          tasks: taskIds.map(taskId => ({
+            task_id: taskId,
+            task_name: '',
+            earned_points: 0,
+            total_points: 0,
+            progress_percent: 0
+          }))
+        };
+      }
+
       return data;
     } catch (err) {
       console.error('Error fetching progress data:', err);
@@ -149,7 +163,6 @@ const StudentCriteria: React.FC = () => {
         // Fetch progress data using the data from the task details API
         const levelId = eventDataFromSecondApi.levels[selectedLevel]?.level_id;
         const taskIds = eventDataFromSecondApi.levels[selectedLevel]?.tasks.map(task => task.task_id) || [];
-
         let progressData;
         try {
           progressData = await fetchProgressData(passedEventId, levelId, taskIds);
@@ -420,6 +433,9 @@ const StudentCriteria: React.FC = () => {
                                 {progressPercentage.toFixed(0)}%
                               </div>
                               <div className="text-sm text-gray-400 font-medium">Complete</div>
+                              <div className="text-sm text-gray-400 font-medium mt-2">
+                                Points: {taskProgress?.earned_points || 0}/{task.total_points}
+                              </div>
                             </div>
                           </div>
                           <div className="bg-white/[0.02] backdrop-blur-sm rounded-2xl p-6 border border-white/[0.05]">

@@ -1,6 +1,6 @@
 "use client"
 import type React from "react"
-import { useEffect, useState, useCallback } from "react"
+import { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
 import axios from "axios"
 import Cookies from "js-cookie"
@@ -12,7 +12,6 @@ import {
   CheckCircle2,
   XCircle,
   Loader2,
-  Hash,
   Save,
   TrendingUp,
   Menu,
@@ -91,18 +90,6 @@ const TaskReport: React.FC = () => {
   const [activeSubtaskId, setActiveSubtaskId] = useState<string>("")
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState<string>("")
-  const [pollingInterval, setPollingInterval] = useState<number | null>(null)
-  const [isRefreshing, setIsRefreshing] = useState<boolean>(false)
-  const [lastRefreshTime, setLastRefreshTime] = useState<Date | null>(null)
-
-  // Display refresh status to user
-  useEffect(() => {
-    if (isRefreshing) {
-      console.log('Data refresh in progress...')
-    } else if (lastRefreshTime) {
-      console.log(`Last refresh: ${lastRefreshTime.toLocaleTimeString()}`)
-    }
-  }, [isRefreshing, lastRefreshTime])
 
   // Debug useEffect to monitor subtaskStudentPoints changes
   useEffect(() => {
@@ -469,95 +456,6 @@ const TaskReport: React.FC = () => {
     }
     return ""
   }
-
-  // Function to refresh points data
-  const refreshPointsData = useCallback(async () => {
-    if (!task || !event_id || !task_id) return
-
-    try {
-      const token = Cookies.get("admin_token")
-      if (!token) return
-
-      console.log("Refreshing points data...")
-      setIsRefreshing(true)
-      const pointsRes = await axios.get<{ points: StudentPoint[] }>(
-        `https://leaderboard-backend-4uxl.onrender.com/api/admin/manage_task_points/${event_id}/${task_id}/`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-          withCredentials: true,
-        },
-      )
-
-      console.log("Refreshed points response:", pointsRes.data)
-      
-      // Process the refreshed data
-      const studentMap = new Map<string, Student>()
-      const pointsMap: { [subtaskId: string]: { [studentEmail: string]: string } } = {}
-      
-      if (pointsRes.data.points && pointsRes.data.points.length > 0) {
-        pointsRes.data.points.forEach((point) => {
-          // Add student to map if not already present
-          if (!studentMap.has(point.student_email)) {
-            studentMap.set(point.student_email, {
-              email: point.student_email,
-              name: point.student_name,
-              roll_no: point.roll_no || undefined,
-              student_id: point.roll_no || point.student_email.split("@")[0],
-              department: undefined,
-              year: undefined,
-            })
-          }
-          
-          // Process points mapping - handle both subtask and task level
-          const mappingKey = point.subtask_id || task.task_id
-          if (!pointsMap[mappingKey]) {
-            pointsMap[mappingKey] = {}
-          }
-          pointsMap[mappingKey][point.student_email] = point.status
-        })
-        
-        // Update state with refreshed data
-        const studentsArray = Array.from(studentMap.values())
-        setStudents(studentsArray)
-        setSubtaskStudentPoints(pointsMap)
-        console.log("Real-time data updated:", { students: studentsArray.length, pointsMap })
-      }
-    } catch (err) {
-      console.warn("Failed to refresh points data:", err)
-    } finally {
-      setIsRefreshing(false)
-      setLastRefreshTime(new Date())
-    }
-  }, [task, event_id, task_id])
-
-  // Start/stop polling based on task state
-  useEffect(() => {
-    if (task && !loading) {
-      // Start polling every 5 seconds for real-time updates
-      const interval = setInterval(() => {
-        refreshPointsData()
-      }, 5000)
-      
-      setPollingInterval(interval)
-      console.log("Started real-time polling for task status updates")
-      
-      return () => {
-        if (interval) {
-          clearInterval(interval)
-          console.log("Stopped real-time polling")
-        }
-      }
-    }
-  }, [task, loading, event_id, task_id, refreshPointsData])
-
-  // Cleanup polling on unmount
-  useEffect(() => {
-    return () => {
-      if (pollingInterval) {
-        clearInterval(pollingInterval)
-      }
-    }
-  }, [pollingInterval])
 
   if (loading) {
     return (
@@ -950,7 +848,7 @@ const TaskReport: React.FC = () => {
                 <div className="bg-white rounded-2xl shadow-xl p-6">
                   <div className="flex items-center gap-3 mb-6">
                     <Users className="w-6 h-6 text-blue-600" />
-                    <h3 className="text-xl font-bold text-gray-900">Student Management</h3>
+                    <h3 className="text-xl font-bold text-gray-900">User Management</h3>
                     {!hasSubtasks && (
                       <span className="text-sm text-gray-500">
                         (Direct Task Points)
@@ -989,11 +887,11 @@ const TaskReport: React.FC = () => {
                                     <div>
                                       <h4 className="font-semibold text-gray-900">{student.name}</h4>
                                       <div className="flex items-center gap-2 text-sm text-gray-600">
-                                        <Hash className="w-3 h-3" />
-                                        <span>{student.roll_no || student.student_id || "N/A"}</span>
+                                        
+                                        
                                         {student.email && (
                                           <>
-                                            <span className="text-gray-400">•</span>
+                                            
                                             <span className="text-blue-600">{student.email}</span>
                                           </>
                                         )}

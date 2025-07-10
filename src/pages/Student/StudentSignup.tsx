@@ -30,7 +30,7 @@ const StudentSignup: React.FC = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const [step, setStep] = useState(1);
+  const [step] = useState(1);
   const [isTyping, setIsTyping] = useState(false);
   const [tokenValid, setTokenValid] = useState<boolean | null>(null);
 
@@ -207,8 +207,9 @@ const StudentSignup: React.FC = () => {
       );
 
       if (response.status === 201) {
-        setStep(2);
         toast.success('Registration successful! You can now login.');
+        navigate("/studentlogin");
+        return;
       }
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
@@ -518,48 +519,7 @@ const StudentSignup: React.FC = () => {
           </>
         )}
 
-        {step === 2 && (
-          <div className="flex flex-1 flex-col items-center justify-center p-6 sm:p-8 md:p-12 lg:p-20">
-            <div className="w-full max-w-md flex flex-col items-center text-center">
-              <img
-                src={snsLogo}
-                className="w-auto mb-8 h-12 sm:h-16"
-                alt="SNS Institutions Logo"
-              />
-
-              <div className="flex justify-center mb-6">
-                <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center">
-                  <Check className="h-12 w-12 text-green-500" />
-                </div>
-              </div>
-
-              <h1 className="text-2xl font-bold mb-2 text-[#111933]">
-                Registration Successful!
-              </h1>
-
-              <p className="text-gray-500 text-sm mb-8">
-                Your account has been created successfully. You can now login with your credentials.
-              </p>
-
-              <button
-                onClick={() => navigate("/studentlogin")}
-                className="w-full bg-[#fc0] font-semibold text-[#111933] py-2 rounded-lg hover:shadow-md transition-colors mb-4"
-              >
-                Go to Login
-              </button>
-
-              <p className="text-sm text-gray-500">
-                Didn't receive the email?{" "}
-                <button
-                  onClick={() => setStep(1)}
-                  className="text-[#fc0] hover:underline font-medium"
-                >
-                  Try again
-                </button>
-              </p>
-            </div>
-          </div>
-        )}
+        {/* Remove or comment out the step === 2 success UI, since redirect happens on success */}
       </div>
     </div>
   );

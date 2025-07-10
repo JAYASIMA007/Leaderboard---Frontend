@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { ArrowRight, RefreshCcw } from "lucide-react";
 import { Progress } from "../../components/ui/progress";
 import Navbar from "../../components/Student/Navbar";
-import { useLocation, useNavigate } from "react-router-dom";
+import {useNavigate} from "react-router-dom";
 import fire from "../../assets/fire.png";
 import trophy from "../../assets/tropy.png";
 import xpIcon from "../../assets/xp.png";
@@ -76,7 +76,6 @@ interface StudentTasksResponse {
 interface EventPointsData {
   success: boolean;
   student_email: string;
-  error?: string;
   data: {
     event_id: string;
     event_name: string;
@@ -92,17 +91,17 @@ export default function Component() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedFilter, setSelectedFilter] = useState<string>("Daily");
-  const location = useLocation();
-  const navigate = useNavigate();
-  const initialEventId = location.state?.selectedEventId;
-  const [selectedEventId, setSelectedEventId] = useState<string | null>(initialEventId || null);
+  const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [eventPointsData, setEventPointsData] = useState<EventPointsData | null>(null);
   const [eventLoading, setEventLoading] = useState<boolean>(false);
   const [eventError, setEventError] = useState<string | null>(null);
   const [leaderboardData, setLeaderboardData] = useState<{ overall: any[]; weekly: any[]; monthly: any[] }>({ overall: [], weekly: [], monthly: [] });
-  const [studentEmail, setStudentEmail] = useState<string>("");
   const [studentName, setStudentName] = useState<string>("");
+  const [studentEmail, setStudentEmail] = useState<string>("");
   const [currentEventName, setCurrentEventName] = useState<string>("");
+
+  // Removed unused 'location' variable
+  const navigate = useNavigate();
 
   const getJwtToken = (): string | null => {
     const cookies = document.cookie.split(';');
@@ -176,9 +175,10 @@ export default function Component() {
       const eventPointsData: EventPointsData = await eventPointsResponse.json();
       if (eventPointsData.success) {
         setEventPointsData(eventPointsData);
+        setError(null);
         setCurrentEventName(eventPointsData.data.event_name); // Set the current event name
       } else {
-        throw new Error(eventPointsData.error || "Failed to fetch event points");
+        throw new Error((eventPointsData as any).error || "Failed to fetch event points");
       }
 
       const leaderboardResponse = await fetch(
@@ -269,9 +269,22 @@ export default function Component() {
     }}>
       <Navbar onEventSelect={handleEventSelect} />
       <div className="p-3 sm:p-4 md:p-6 lg:p-10">
+        {/* Display event loading state */}
+        {eventLoading && (
+          <div className="text-center text-white mb-4">
+            <div className="animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 border-b-2 border-white mx-auto mb-2"></div>
+            <span className="text-sm sm:text-base">Loading event data...</span>
+          </div>
+        )}
+        {/* Display event error */}
+        {eventError && (
+          <div className="text-center text-red-400 bg-red-100/10 rounded-2xl p-4 sm:p-6 mb-4">
+            <p className="text-sm sm:text-base">Error: {eventError}</p>
+          </div>
+        )}
         <div className="mb-4 sm:mb-6 lg:mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
           <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-white flex items-center gap-2">
-            {studentName ? `${studentName}'s Tasks` : 'Level up through consistency!'} <img src={fire} className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-orange-500" alt="Fire" />
+            Welcome, {studentName || "Student"}! Level up through consistency! <img src={fire} className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-orange-500" alt="Fire" />
           </h1>
           <button
             onClick={fetchStudentTasks}
@@ -299,11 +312,6 @@ export default function Component() {
               </span> */}
             </div>
           </div>
-          {eventError && (
-            <div className="bg-red-500/10 backdrop-blur-xl border border-red-500/20 rounded-2xl p-3 sm:p-4">
-              <div className="text-red-400 text-xs sm:text-sm">{eventError}</div>
-            </div>
-          )}
           <div className="bg-white/[0.02] backdrop-blur-xl border border-white/[0.05] rounded-2xl p-3 sm:p-4">
             <div className="flex items-center gap-2 text-xs sm:text-sm text-white mb-1">
               <img src={xpIcon} className="w-4 h-4 sm:w-5 sm:h-5 text-blue-500" alt="XP Icon" />
@@ -328,24 +336,15 @@ export default function Component() {
               <img src={rank} className="w-4 h-4 sm:w-5 sm:h-5 text-purple-500" alt="Rank" />
               Your Rank
             </div>
-            {eventLoading ? (
-              <div className="animate-pulse">
-                <div className="h-6 bg-white/10 rounded w-16 mb-2"></div>
-                <div className="h-4 bg-white/10 rounded w-24"></div>
-              </div>
-            ) : (
-              <>
-                <div className="font-bold text-base sm:text-lg text-white">
-                  {(() => {
-                    const entry = leaderboardData.overall.find((item: any) => item.email === studentEmail);
-                    return entry ? `#${entry.rank}` : '--';
-                  })()}
-                </div>
-                <div className="text-xs sm:text-sm text-white">
-                  of {leaderboardData.overall.length} Individuals
-                </div>
-              </>
-            )}
+            <div className="font-bold text-base sm:text-lg text-white">
+              {(() => {
+                const entry = leaderboardData.overall.find((item: any) => item.email === studentEmail);
+                return entry ? `#${entry.rank}` : '--';
+              })()}
+            </div>
+            <div className="text-xs sm:text-sm text-white">
+              of {leaderboardData.overall.length} Individuals
+            </div>
           </div>
           <div className="bg-white/[0.02] backdrop-blur-xl border border-white/[0.05] rounded-2xl p-3 sm:p-4">
             <div className="flex items-center gap-2 text-xs sm:text-sm text-white mb-1">
@@ -439,7 +438,7 @@ export default function Component() {
                   <div className="flex items-center justify-between mt-2">
                     <div className="flex items-center gap-1 text-xs text-yellow-600">
                       <span className="text-yellow-500">⚡</span>
-                      <span>+{task.points} XP</span>
+                      <span>{task.points} XP</span>
                     </div>
                     <button className="text-xs text-white hover:text-white bg-transparent rounded px-2 py-1 flex items-center gap-1 border-0 border-b-4 border-yellow-300 shadow-[0_4px_0_0_rgba(252,200,0,0.15)] font-semibold transition-all duration-150 focus:outline-none">
                       Start <ArrowRight className="w-3 h-3" />

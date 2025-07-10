@@ -15,7 +15,10 @@ import loginScattered11 from "../../assets/LoginImg1.png";
 import loginScattered22 from "../../assets/LoginImg2.png";
 import loginScattered33 from "../../assets/LoginImg3.png";
 
-const StudentLogin = ({ onLogin }) => {
+interface StudentLoginProps {
+  onLogin: (data: any) => void;
+}
+const StudentLogin = ({ onLogin }: StudentLoginProps) => {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -27,7 +30,7 @@ const StudentLogin = ({ onLogin }) => {
   const [isTransitioning, setIsTransitioning] = useState(false);
   
   const navigate = useNavigate();
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://leaderboard-backend-4uxl.onrender.com';
 
   const images = [loginScattered11, loginScattered22, loginScattered33];
 
@@ -47,20 +50,43 @@ const StudentLogin = ({ onLogin }) => {
     return () => clearInterval(slideInterval);
   }, [isTransitioning, images.length]);
 
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     setFormData((prev) => ({
       ...prev,
       [e.target.name]: e.target.value,
     }));
   };
 
-  const handleLogin = async (e) => {
+  interface LoginResponse {
+    status: number;
+    data: {
+      name: string;
+      email: string;
+      jwt?: string;
+      token?: string;
+      attendance?: {
+        jwt?: {
+          jwt?: string;
+        };
+      };
+    };
+  }
+
+  interface LoginError {
+    response?: {
+      data?: {
+        error?: string;
+      };
+    };
+  }
+
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
     setLoading(true);
     setErrorMessage('');
 
     try {
-      const response = await axios.post(
+      const response: LoginResponse = await axios.post(
         `${API_BASE_URL}/api/student/login/`,
         formData,
         {
@@ -71,21 +97,43 @@ const StudentLogin = ({ onLogin }) => {
 
       if (response.status === 200) {
         const { name, email } = response.data;
+        console.log('Login successful:', response.data);
+        // Set JWT in cookies
+        const jwt =
+          // response.data.jwt ||
+          // response.data.token ||
+          response.data.attendance?.jwt;
+          console.log('JWT from response:', jwt);
+          
+        if (jwt) {
+          document.cookie = `jwt=${jwt}; path=/; same_site=None; Secure`;
+          console.log('JWT cookie set:', jwt);
+        } else {
+          console.error('No JWT found in login response');
+        }
+        // Set localStorage with user data
+        setFormData({
+          email: '',
+          password: '',
+        });
+        // Clear error message
+        setErrorMessage('');
 
         // Save to localStorage
         localStorage.setItem('name', name);
         localStorage.setItem('email', email);
 
         // Optional: pass to context or parent
-        onLogin();
+        onLogin(response.data);
 
         // Navigate
         navigate('/student/dashboard');
         toast.success('Login successful!');
       }
-    } catch (error) {
+    } catch (error: unknown) {
+      const err = error as LoginError;
       setErrorMessage(
-        error.response?.data?.error || 'An error occurred during login.'
+        err.response?.data?.error || 'An error occurred during login.'
       );
       toast.error('Wrong username or password.');
     } finally {
@@ -93,7 +141,7 @@ const StudentLogin = ({ onLogin }) => {
     }
   };
 
-  const handleKeyDown = (e) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLFormElement>): void => {
     if (e.key === "Enter") {
       handleLogin(e);
     }
@@ -177,6 +225,11 @@ const StudentLogin = ({ onLogin }) => {
               </div>
 
               <div className="flex flex-col items-center w-full">
+                {errorMessage && (
+                  <p className="text-red-500 text-sm text-center mb-4">
+                    {errorMessage}
+                  </p>
+                )}
                 <button
                 type="submit"
                 disabled={loading}

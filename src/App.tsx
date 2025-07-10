@@ -20,23 +20,42 @@ import CreateEvent from './pages/SuperAdmin/CreateEvent';
 import StudentUpload from './pages/SuperAdmin/StudentUpload';
 import CreateAdmin from './pages/SuperAdmin/CreateAdmin';
 import AdminDashboard from './pages/Admin/AdminDashboard';
-import EventListing from "../src/pages/SuperAdmin/EventListing";
+import EventListing from './pages/SuperAdmin/EventListing';
 import StudentProfilePage from './pages/Student/StudentProfilePage';
 import TaskForEvent from './pages/Admin/TaskForEvent';
 import TaskReport from './pages/Admin/TaskReport';
 import AssignUsers from './pages/SuperAdmin/AssignUsers';
-import StudentList from '../src/pages/Admin/StudentList';
-import LeaderBoard from "../src/pages/Admin/LeaderBoard";
+import StudentList from './pages/Admin/StudentList';
+import LeaderBoard from './pages/Admin/LeaderBoard';
 import SuperAdminLeaderBoard from './pages/SuperAdmin/SuperAdminLeaderboard';
 
+
 function App() {
+  const handleLogin = (data: any) => {
+    console.log('Login successful, full response:', JSON.stringify(data, null, 2));
+    let jwt: string | undefined;
+    
+    // Try different possible JWT locations
+    if (data?.attendance?.jwt?.jwt) {
+      jwt = data.attendance.jwt.jwt;
+    } else if (data?.jwt) {
+      jwt = data.jwt;
+    } else if (data?.token) {
+      jwt = data.token;
+    }
+
+    if (jwt) {
+      document.cookie = `jwt=${jwt}; path=/; SameSite=Strict; Secure`;
+      console.log('JWT cookie set:', jwt);
+    } else {
+      console.error('No JWT found in login response');
+    }
+  };
+
   return (
     <Router>
       <Routes>
-        {/* Home Page */}
         <Route path="/" element={<Home />} />
-
-        {/* SuperAdmin Routes */}
         <Route path="/superadminlogin" element={<SuperAdminLogin />} />
         <Route path="/superadmin/dashboard" element={<Dashboard />} />
         <Route path="/superadmin/forgot-password" element={<SuperAdminForgotPassword />} />
@@ -49,9 +68,7 @@ function App() {
         <Route path="/superadmin/leaderboard/:event_id/:view" element={<SuperAdminLeaderBoard />} />
         <Route path="/superadmin/assign-users/:eventId" element={<AssignUsers />} />
         <Route path="/superadmin/edit-event/:eventId" element={<CreateEvent />} />
-
-        {/* Student Routes */}
-        <Route path="/studentlogin" element={<StudentLogin onLogin={() => {}} />} />
+        <Route path="/studentlogin" element={<StudentLogin onLogin={handleLogin} />} />
         <Route path="/studentsignup" element={<StudentSignup />} />
         <Route path="/student/setup-password" element={<StudentPasswordSetup />} />
         <Route path="/studentdashboard" element={<StudentDashboard />} />
@@ -62,8 +79,6 @@ function App() {
         <Route path="/studentforgotpassword" element={<StudentForgotPassword />} />
         <Route path="/studentresetpassword" element={<StudentResetPassword />} />
         <Route path="/student/profile" element={<StudentProfilePage />} />
-
-        {/* Admin Routes */}
         <Route path="/adminlogin" element={<AdminLogin />} />
         <Route path="/admin/forgot-password" element={<AdminForgotPassword />} />
         <Route path="/admin/forgot-password-reset-password" element={<AdminForgotPassword />} />
