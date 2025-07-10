@@ -29,6 +29,7 @@ import StudentList from '../src/pages/Admin/StudentList';
 import LeaderBoard from "../src/pages/Admin/LeaderBoard";
 import SuperAdminLeaderBoard from './pages/SuperAdmin/SuperAdminLeaderboard';
 import UserDetailView from './pages/Admin/UserDetailView';
+import SuperAdminUserDetailView from './pages/SuperAdmin/SuperAdminUserdetailedView';
 
 function App() {
   const handleLogin = (data: any) => {
@@ -71,6 +72,7 @@ function App() {
         <Route path="/superadmin/leaderboard/:event_id/:view" element={<SuperAdminLeaderBoard />} />
         <Route path="/superadmin/assign-users/:eventId" element={<AssignUsers />} />
         <Route path="/superadmin/edit-event/:eventId" element={<CreateEvent />} />
+        <Route path="/superadmin/leaderboard/:event_id/:view/:student_id" element={<SuperAdminUserDetailView />} />
 
         {/* Student Routes */}
         <Route path="/studentlogin" element={<StudentLogin onLogin={handleLogin} />} />
