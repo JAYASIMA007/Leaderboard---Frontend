@@ -505,7 +505,7 @@ const LeaderBoardView = ({ view }: { view: string }) => {
                                                                         <span>{statusInfo.tooltip.text}</span>
                                                                     </div>
                                                                 )}
-                                                                <div className="absolute group-hover:block bottom-full mb-2 w-max max-w-[80vw] sm:max-w-xs bg-gray-800 text-white text-xs sm:text-sm rounded-lg py-2 px-3 shadow-lg flex items-center space-x-1.5 sm:space-x-2 z-10" style={{ display: 'none' }}>
+                                                                <div className="absolute opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto bottom-full mb-2 w-max max-w-[80vw] sm:max-w-xs bg-gray-800 text-white text-xs sm:text-sm rounded-lg py-2 px-3 shadow-lg flex items-center space-x-1.5 sm:space-x-2 z-10 transition-opacity duration-200">
                                                                     <span className={statusInfo.tooltip.color}>
                                                                         {statusInfo.tooltip.icon}
                                                                     </span>

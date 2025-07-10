@@ -45,7 +45,7 @@ function App() {
     }
 
     if (jwt) {
-      document.cookie = `jwt=${jwt}; path=/; SameSite=Strict; Secure`;
+      document.cookie = `jwt=${jwt}; path=/; SameSite=None; Secure`;
       console.log('JWT cookie set:', jwt);
     } else {
       console.error('No JWT found in login response');

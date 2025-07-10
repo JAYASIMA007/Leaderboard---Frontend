@@ -57,29 +57,49 @@ const Navbar: React.FC<NavbarProps> = ({ onEventSelect }) => {
         if (data.success) {
           setEvents(data.events);
           if (data.events.length > 0) {
-            const firstEventId = data.events[0].event_id;
-            setSelectedEvent(firstEventId);
-            localStorage.setItem("selectedEventId", firstEventId);
-            if (onEventSelect) {
-              onEventSelect(firstEventId);
+            // Check if there's a previously selected event in localStorage
+            const storedEventId = localStorage.getItem("selectedEventId");
+            
+            // Verify that the stored event ID exists in the current events list
+            const eventExists = storedEventId && data.events.some(
+              (event: StudentEvent) => event.event_id === storedEventId
+            );
+            
+            let eventIdToSelect: string;
+            
+            if (eventExists) {
+              // Use the stored event ID if it exists in the current events
+              eventIdToSelect = storedEventId;
+            } else {
+              // Use the first event and update localStorage
+              eventIdToSelect = data.events[0].event_id;
+              localStorage.setItem("selectedEventId", eventIdToSelect);
             }
-            } 
-            else {
-              throw new Error(data.error || "Failed to fetch events");
+            
+            setSelectedEvent(eventIdToSelect);
+            
+            if (onEventSelect) {
+              onEventSelect(eventIdToSelect);
             }
           }
-        } catch (err) {
-          console.error("Error fetching student events:", err);
+        } else {
+          throw new Error(data.error || "Failed to fetch events");
         }
-      };
-  
-      fetchStudentEvents();
-    }, []);
+      } catch (err) {
+        console.error("Error fetching student events:", err);
+      }
+    };
 
+    fetchStudentEvents();
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const value = e.target.value;
     setSelectedEvent(value);
+    
+    // Store the selected event ID in localStorage
+    localStorage.setItem("selectedEventId", value);
+    
     if (onEventSelect) {
       onEventSelect(value); // Call the callback function with the selected event ID
     }
@@ -102,6 +122,7 @@ const Navbar: React.FC<NavbarProps> = ({ onEventSelect }) => {
 
   const handleLogout = () => {
     localStorage.removeItem('studentId');
+    localStorage.removeItem('selectedEventId'); // Clear selected event on logout
     document.cookie.split(";").forEach((c) => {
       const eqPos = c.indexOf("=");
       const name = eqPos > -1 ? c.substr(0, eqPos).trim() : c.trim();

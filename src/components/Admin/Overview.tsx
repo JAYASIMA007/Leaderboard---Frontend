@@ -72,7 +72,7 @@ const Overview: React.FC = () => {
         }
 
         const response = await axios.post<{ events: Event[] }>(
-          "https://leaderboard-backend-4uxl.onrender.com/api/admin/get_events/",
+          "http://leaderboard-backend-4uxl.onrender.com/api/admin/get_events/",
           {},
           {
             headers: {
@@ -121,8 +121,8 @@ const Overview: React.FC = () => {
   );
 
   return (
-    <div className="container mx-auto p-4 sm:p-6 lg:p-8 bg-gradient-to-br from-yellow-50 via-white to-yellow-50 min-h-screen">
-      <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-black via-yellow-600 to-black bg-clip-text text-transparent mb-8 sm:mb-10 lg:mb-12 tracking-tight text-center">
+    <div className="container mx-auto p-4 sm:p-6  lg:p-8 bg-gradient-to-br from-yellow-50 via-white to-yellow-50 min-h-screen">
+      <h1 className="text-3xl sm:text-4xl lg:text-5xl h-15 font-bold bg-gradient-to-r from-black via-yellow-600 to-black bg-clip-text text-transparent mb-8 sm:mb-10 lg:mb-12 tracking-tight text-center">
         My Events
       </h1>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">

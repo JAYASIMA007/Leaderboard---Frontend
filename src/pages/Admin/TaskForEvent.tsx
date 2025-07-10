@@ -1,4 +1,3 @@
-
 import type React from "react"
 import { useEffect, useState } from "react"
 import { useParams, useNavigate, Link } from "react-router-dom"
@@ -62,6 +61,7 @@ const TaskForEvent: React.FC = () => {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
+
     const fetchTasks = async () => {
       try {
         const token = Cookies.get("admin_token")
@@ -242,7 +242,7 @@ const TaskForEvent: React.FC = () => {
           <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-yellow-400 to-amber-500 rounded-full mb-6 shadow-2xl">
             <Target className="h-10 w-10 text-black" />
           </div>
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 bg-gradient-to-r from-yellow-600 via-amber-600 to-orange-600 bg-clip-text text-transparent">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl h-15 font-bold mb-4 bg-gradient-to-r from-yellow-600 via-amber-600 to-orange-600 bg-clip-text text-transparent">
             Event Tasks
           </h1>
           <p className="text-gray-600 text-lg md:text-xl max-w-2xl mx-auto">
