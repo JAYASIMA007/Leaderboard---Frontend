@@ -1,6 +1,3 @@
-
-"use client"
-
 import type React from "react"
 import { useNavigate } from "react-router-dom"
 import { UserPlus, Calendar, LogOut, User, List, Trophy } from "lucide-react"
