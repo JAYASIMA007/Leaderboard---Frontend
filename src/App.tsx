@@ -20,15 +20,15 @@ import CreateEvent from './pages/SuperAdmin/CreateEvent';
 import StudentUpload from './pages/SuperAdmin/StudentUpload';
 import CreateAdmin from './pages/SuperAdmin/CreateAdmin';
 import AdminDashboard from './pages/Admin/AdminDashboard';
-import EventListing from './pages/SuperAdmin/EventListing';
+import EventListing from "../src/pages/SuperAdmin/EventListing";
 import StudentProfilePage from './pages/Student/StudentProfilePage';
 import TaskForEvent from './pages/Admin/TaskForEvent';
 import TaskReport from './pages/Admin/TaskReport';
 import AssignUsers from './pages/SuperAdmin/AssignUsers';
-import StudentList from './pages/Admin/StudentList';
-import LeaderBoard from './pages/Admin/LeaderBoard';
+import StudentList from '../src/pages/Admin/StudentList';
+import LeaderBoard from "../src/pages/Admin/LeaderBoard";
 import SuperAdminLeaderBoard from './pages/SuperAdmin/SuperAdminLeaderboard';
-
+import UserDetailView from './pages/Admin/UserDetailView';
 
 function App() {
   const handleLogin = (data: any) => {
@@ -55,7 +55,10 @@ function App() {
   return (
     <Router>
       <Routes>
+        {/* Home Page */}
         <Route path="/" element={<Home />} />
+
+        {/* SuperAdmin Routes */}
         <Route path="/superadminlogin" element={<SuperAdminLogin />} />
         <Route path="/superadmin/dashboard" element={<Dashboard />} />
         <Route path="/superadmin/forgot-password" element={<SuperAdminForgotPassword />} />
@@ -68,6 +71,8 @@ function App() {
         <Route path="/superadmin/leaderboard/:event_id/:view" element={<SuperAdminLeaderBoard />} />
         <Route path="/superadmin/assign-users/:eventId" element={<AssignUsers />} />
         <Route path="/superadmin/edit-event/:eventId" element={<CreateEvent />} />
+
+        {/* Student Routes */}
         <Route path="/studentlogin" element={<StudentLogin onLogin={handleLogin} />} />
         <Route path="/studentsignup" element={<StudentSignup />} />
         <Route path="/student/setup-password" element={<StudentPasswordSetup />} />
@@ -79,6 +84,9 @@ function App() {
         <Route path="/studentforgotpassword" element={<StudentForgotPassword />} />
         <Route path="/studentresetpassword" element={<StudentResetPassword />} />
         <Route path="/student/profile" element={<StudentProfilePage />} />
+
+
+        {/* Admin Routes */}
         <Route path="/adminlogin" element={<AdminLogin />} />
         <Route path="/admin/forgot-password" element={<AdminForgotPassword />} />
         <Route path="/admin/forgot-password-reset-password" element={<AdminForgotPassword />} />
@@ -88,9 +96,11 @@ function App() {
         <Route path="/admin/report/task/:event_id/:task_id" element={<TaskReport />} />
         <Route path="/tasks/students/:event_id" element={<StudentList />} />
         <Route path="/tasks/leaderboard/:event_id" element={<LeaderBoard />} />
+        <Route path="/tasks/leaderboard/:event_id/:view/:student_id" element={<UserDetailView />} />
       </Routes>
     </Router>
   );
 }
+
 
 export default App;
