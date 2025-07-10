@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useState, useEffect, Component } from "react";
 import type { ErrorInfo } from "react";
 import axios from "axios";
