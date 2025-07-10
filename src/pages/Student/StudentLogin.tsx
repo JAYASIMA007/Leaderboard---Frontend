@@ -10,7 +10,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import Loader from '../../components/Loader';
 
 //img imports
-import snsLogo from '../../assets/Logo.svg';
+import snsLogo from '../../assets/logo.svg';
 import loginScattered11 from "../../assets/LoginImg1.png";
 import loginScattered22 from "../../assets/LoginImg2.png";
 import loginScattered33 from "../../assets/LoginImg3.png";

@@ -5,7 +5,7 @@ import emailIcon from "../../assets/mail.svg";
 import mail from "../../assets/mail.svg";
 
 // New image imports
-import snsLogo from '../../assets/Logo.svg';
+import snsLogo from '../../assets/logo.svg';
 import loginScattered11 from "../../assets/LoginImg1.png";
 import loginScattered22 from "../../assets/LoginImg2.png";
 import loginScattered33 from "../../assets/LoginImg3.png";
