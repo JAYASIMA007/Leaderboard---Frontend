@@ -8,7 +8,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { useSearchParams } from 'react-router-dom';
 
 //img imports
-import snsLogo from '../../assets/logo.svg';
+import snsLogo from '../../assets/Logo.svg';
 import loginScattered11 from "../../assets/LoginImg1.png";
 import loginScattered22 from "../../assets/LoginImg2.png";
 import loginScattered33 from "../../assets/LoginImg3.png";
@@ -30,7 +30,7 @@ const StudentSignup: React.FC = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const [step] = useState(1);
+  const [step,] = useState(1);
   const [isTyping, setIsTyping] = useState(false);
   const [tokenValid, setTokenValid] = useState<boolean | null>(null);
 

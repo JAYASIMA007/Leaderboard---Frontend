@@ -1,20 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-
+import { useNavigate, useLocation } from 'react-router-dom';
 import emailIcon from "../../assets/mail.svg";
 import mail from "../../assets/mail.svg";
-
-// New image imports
-import snsLogo from '../../assets/logo.svg';
+import snsLogo from '../../assets/Logo.svg';
 import loginScattered11 from "../../assets/LoginImg1.png";
 import loginScattered22 from "../../assets/LoginImg2.png";
 import loginScattered33 from "../../assets/LoginImg3.png";
 
 const StudentForgotPassword: React.FC = () => {
   const navigate = useNavigate();
-  const [email, setEmail] = useState('');
+  const location = useLocation();
+  const [email, setEmail] = useState(location.state?.email || '');
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState(location.state?.error || '');
   const [step, setStep] = useState(1); // 1: Email input, 2: Check email
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
@@ -55,7 +53,6 @@ const StudentForgotPassword: React.FC = () => {
       });
 
       const text = await response.text();
-
       let data;
       try {
         data = JSON.parse(text);
@@ -67,7 +64,6 @@ const StudentForgotPassword: React.FC = () => {
         throw new Error(data.error || 'Failed to send reset link');
       }
 
-      // Show the check email screen
       setStep(2);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
@@ -89,7 +85,6 @@ const StudentForgotPassword: React.FC = () => {
       });
 
       const text = await response.text();
-
       let data;
       try {
         data = JSON.parse(text);
@@ -114,19 +109,21 @@ const StudentForgotPassword: React.FC = () => {
         <div className="flex-1 p-6 sm:p-8 md:p-12 lg:p-20">
           {step === 1 && (
             <>
-                <div className="flex justify-center items-center mb-3">
+              <div className="flex justify-center items-center mb-3">
                 <img
                   src={snsLogo}
                   className="w-auto h-12 sm:h-16"
                   alt="SNS Institutions Logo"
                 />
-                </div>
+              </div>
 
-                <div className="text-center mb-6 sm:mb-8">
+              <div className="text-center mb-6 sm:mb-8">
                 <p className="text-[#fc0] font-medium mb-2 text-sm sm:text-base">Login</p>
                 <h1 className="text-2xl sm:text-3xl font-bold mb-2 text-[#111933]">Forgot Password?</h1>
-                <p className="text-gray-500 text-sm px-2">Please enter your email to send a password reset mail</p>
-                </div>
+                <p className="text-gray-500 text-sm px-2">
+                  {error ? error : "Please enter your email to send a password reset mail"}
+                </p>
+              </div>
 
               <form onSubmit={handleSendLink}>
                 <div className="mb-6">
@@ -136,13 +133,15 @@ const StudentForgotPassword: React.FC = () => {
                       <input
                         type="email"
                         placeholder="Enter your mail ID"
-                        className="flex-1 focus:outline-none text-sm  placeholder-gray-400 ml-2"
+                        className="flex-1 focus:outline-none text-sm placeholder-gray-400 ml-2"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         required
                       />
                     </div>
-                    {error && <p className="text-xs text-red-500 mt-1 ml-2">{error}</p>}
+                    {error && !location.state?.error && (
+                      <p className="text-xs text-red-500 mt-1 ml-2">{error}</p>
+                    )}
                   </div>
                 </div>
 
@@ -153,8 +152,6 @@ const StudentForgotPassword: React.FC = () => {
                 >
                   {isLoading ? "Sending..." : "Send"}
                 </button>
-                
-               
               </form>
             </>
           )}

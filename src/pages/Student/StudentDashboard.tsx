@@ -10,7 +10,6 @@ import {
   Zap,
   BookOpen,
   Flame,
-  Crown,
   Sparkles,
   TrendingUp,
 } from "lucide-react"
@@ -78,25 +77,93 @@ if (typeof document !== 'undefined') {
 }
 
 // Inline UI Components
-const Card = ({
-  className = "",
-  children,
-  ...props
-}: { className?: string; children: React.ReactNode; [key: string]: any }) => (
+// Card and CardContent for legacy usage (fixes Card is not defined error)
+const Card = ({ className = "", children, ...props }: { className?: string; children: React.ReactNode; [key: string]: any }) => (
   <div className={`bg-white/[0.02] backdrop-blur-xl border border-white/[0.1] rounded-3xl text-white shadow-lg ${className}`} {...props}>
     {children}
   </div>
-)
+);
 
-const CardContent = ({
-  className = "",
-  children,
-  ...props
-}: { className?: string; children: React.ReactNode; [key: string]: any }) => (
+const CardContent = ({ className = "", children, ...props }: { className?: string; children: React.ReactNode; [key: string]: any }) => (
   <div className={`p-6 pt-0 ${className}`} {...props}>
     {children}
   </div>
-)
+);
+// Modern Stat Card (redesigned with icon on left, title/content on right, progress at bottom)
+const StatCardModern = ({
+  icon,
+  iconBg = "bg-blue-600",
+  label,
+  value,
+  subLabel,
+  progress = false,
+  progressValue = 0,
+  progressText = "",
+  className = "",
+}: {
+  icon: React.ReactNode;
+  iconBg?: string;
+  label: React.ReactNode;
+  value: React.ReactNode;
+  subLabel?: React.ReactNode;
+  progress?: boolean;
+  progressValue?: number;
+  progressText?: string;
+  className?: string;
+}) => (
+  <div className={`relative rounded-2xl p-5 bg-gradient-to-br from-[#131862] to-[#0a1636] shadow-xl flex flex-col ${className} hover:shadow-2xl hover:shadow-purple-500/20 transition-all duration-300 border border-white/10 backdrop-blur-xl group`} style={{minHeight:'140px'}}>
+    {/* Top sparkle effect */}
+    <div className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+      <svg width="20" height="20" viewBox="0 0 24 24" className="text-yellow-400 animate-pulse">
+        <path fill="currentColor" d="M12 2L9.1 9.1 2 12l7.1 2.9L12 22l2.9-7.1L22 12l-7.1-2.9z"/>
+      </svg>
+    </div>
+    
+    {/* Main content row with icon on left, content on right */}
+    <div className="flex items-stretch mb-3 flex-1">
+      {/* Large icon container on left */}
+      <div className="mr-4">
+        <div className={`w-16 h-16 rounded-xl flex items-center justify-center shadow-lg ${iconBg} group-hover:scale-105 transition-transform duration-300`}>
+          {icon}
+        </div>
+      </div>
+      
+      {/* Content container on right */}
+      <div className="flex flex-col justify-center flex-1">
+        <div className="px-2.5 py-1 rounded-full text-xs text-white/10 font-semibold w-fit mb-2">
+          {label}
+        </div>
+        
+        <div className="text-2xl font-extrabold text-white leading-tight group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-purple-300 group-hover:to-pink-300 group-hover:bg-clip-text transition-all duration-300">
+          {value}
+        </div>
+        
+        {subLabel && <div className="text-xs text-gray-400 mt-1">{subLabel}</div>}
+      </div>
+    </div>
+    
+    {/* Progress bar at bottom */}
+    {progress && (
+      <div className="mt-auto pt-2">
+        <div className="flex justify-between text-xs mb-1">
+          <span className="text-white/70">{progressText}</span>
+          <span className="text-cyan-400 font-medium">{progressValue}%</span>
+        </div>
+        <div className="w-full h-2 rounded-full bg-[#232b4d] overflow-hidden">
+          <div
+            className="h-2 rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 transition-all duration-700 relative"
+            style={{ width: `${progressValue}%` }}
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-pulse"></div>
+          </div>
+        </div>
+      </div>
+    )}
+    
+    {/* Glow effect on hover */}
+    <div className="absolute inset-0 bg-gradient-to-br from-purple-600/0 via-pink-600/0 to-purple-600/0 group-hover:from-purple-600/[0.08] group-hover:via-pink-600/[0.08] group-hover:to-purple-600/[0.08] rounded-2xl transition-all duration-500 pointer-events-none" />
+  </div>
+);
 
 const Badge = ({
   className = "",
@@ -104,7 +171,7 @@ const Badge = ({
   ...props
 }: { className?: string; children: React.ReactNode; [key: string]: any }) => (
   <div
-    className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 ${className}`}
+    className={`inline-flex items-center rounded-full border px-4 py-1.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 ${className}`}
     {...props}
   >
     {children}
@@ -161,162 +228,221 @@ interface JwtPayload {
   [key: string]: any;
 }
 
-// Update the Milestone component to show points under each badge and enlarge completed badges
+// Update the Milestone component to show points under each badge and enlarge completed badges with enhanced animations
 const Milestone: React.FC<{
   eventPoints: EventPointsData | null;
 }> = ({ eventPoints }) => {
-  // Define milestone thresholds based on percentage completion
+  // Define milestone thresholds based on actual points (not percentage)
+  const totalEventPoints = eventPoints?.total_event_points || 1000; // Default to 1000 if not available
   const milestoneThresholds = [
-    { name: "Bronze", threshold: 20, icon: Bronze },
-    { name: "Silver", threshold: 40, icon: Silver },
-    { name: "Gold", threshold: 60, icon: Gold },
-    { name: "Platinum", threshold: 80, icon: Platinum },
-    { name: "Elite", threshold: 100, icon: Elite },
+    { name: "Bronze", points: Math.round(totalEventPoints * 0.2), icon: Bronze },
+    { name: "Silver", points: Math.round(totalEventPoints * 0.4), icon: Silver },
+    { name: "Gold", points: Math.round(totalEventPoints * 0.6), icon: Gold },
+    { name: "Platinum", points: Math.round(totalEventPoints * 0.8), icon: Platinum },
+    { name: "Elite", points: totalEventPoints, icon: Elite },
   ];
 
-  // Calculate which milestones are completed based on completion percentage
+  // Calculate which milestones are completed based on actual points earned
+  const userPoints = eventPoints?.total_points_earned || 0;
   const completionPercentage = eventPoints?.completion_percentage || 0;
-  const totalPossiblePoints = eventPoints?.total_possible_points || 0;
 
   const milestones = milestoneThresholds.map((milestone) => ({
     label: milestone.name,
     icon: milestone.icon,
-    completed: completionPercentage >= milestone.threshold,
-    threshold: milestone.threshold,
-    points: Math.round((milestone.threshold / 100) * totalPossiblePoints),
+    completed: userPoints >= milestone.points,
+    threshold: Math.round((milestone.points / totalEventPoints) * 100),
+    points: milestone.points,
   }));
 
+  // Find the current milestone - the highest achieved one based on points
+  // For example: if user has 120 points, and Silver is 100 points, Gold is 150 points
+  // Silver should be the current milestone that glows and animates
+  let currentIndex = -1;
+  
+  for (let i = milestones.length - 1; i >= 0; i--) {
+    if (userPoints >= milestones[i].points) {
+      currentIndex = i;
+      break;
+    }
+  }
+  
+  // If no milestone is achieved yet, but user has some points, show the first milestone as the target
+  if (currentIndex === -1 && userPoints > 0) {
+    currentIndex = 0; // Show first milestone as target if user has some points but hasn't reached Bronze yet
+  }
+
   return (
-    <Card className="hover:shadow-2xl hover:shadow-blue-500/20 transition-all duration-300 w-full p-4 sm:p-6 lg:p-7">
+    <Card className="hover:shadow-2xl hover:shadow-blue-500/20 transition-all duration-300 w-full p-3 sm:p-4 lg:p-5 bg-gradient-to-br from-[#0f1535] to-[#151c41] border border-blue-500/20">
       <CardContent>
-        {/* Header with dynamic data */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6">
-          <div className="mb-2 sm:mb-0">
-            <h3 className="text-lg sm:text-xl font-bold text-white">Milestone</h3>
+      {/* Header with dynamic data - More compact */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 sm:mb-4">
+        <div className="mb-2 sm:mb-0 flex items-center">
+          <div className="w-10 h-10 bg-blue-600/30 rounded-lg flex items-center justify-center mr-3">
+            <Trophy className="w-6 h-6 text-blue-400" />
+          </div>
+            <div>
+            <h2 className="text-lg sm:text-xl font-bold text-white group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r from-blue-300 to-purple-300">
+              Achievement Path
+            </h2>
             {eventPoints && (
-              <p className="text-xs sm:text-sm text-gray-400">
-                {eventPoints.event_name || "Event Progress"}
+              <p className="text-sm text-gray-400">
+              {eventPoints.event_name || "Event Progress"}
               </p>
             )}
+            </div>
+        </div>
+        <div className="flex items-center bg-white/5 px-3 py-2 rounded-lg border border-blue-500/20">
+          <div className="mr-3">
+            <div className="text-xs text-blue-300 uppercase tracking-wider font-semibold">Points</div>
+            <div className="text-base sm:text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-300 to-purple-400">
+              {eventPoints ? eventPoints.total_points_earned.toLocaleString() : "0"}
+            </div>
           </div>
-          <div className="flex items-center space-x-2">
-            <Target className="w-4 h-4 sm:w-5 sm:h-5 text-blue-400" />
-            <span className="text-xl sm:text-2xl font-bold text-blue-400">
-              {eventPoints ? `${eventPoints.total_points_earned} / ${eventPoints.total_event_points} pts` : "0 / 0 pts"}
-            </span>
+          <div className="h-8 w-px bg-white/10 mx-2"></div>
+          <div>
+            <div className="text-xs text-blue-300 uppercase tracking-wider font-semibold">Target</div>
+            <div className="text-base sm:text-lg font-bold text-gray-400">
+              {eventPoints ? eventPoints.total_event_points.toLocaleString() : "0"}
+            </div>
           </div>
         </div>
+      </div>
 
-        {/* Milestone Progress Bar with Markers */}
-        <div className="relative w-full h-12 sm:h-16 flex items-center justify-between px-2 sm:px-4">
-          {/* Full progress bar behind the icons */}
-          <div className="absolute top-1/2 left-2 right-2 sm:left-4 sm:right-4 h-1.5 sm:h-2 bg-gray-700 rounded-full -translate-y-1/2 z-0 overflow-hidden">
-            <div
-              className="h-full bg-gradient-to-r from-green-400 to-emerald-500 transition-all duration-1000"
-              style={{ width: `${completionPercentage}%` }}
-            />
-          </div>
+      
 
-          {/* Badges */}
+      {/* Milestone Progress Bar with Markers - Reduced height */}
+      <div className="relative w-full h-32 sm:h-36 flex items-center justify-between px-2 sm:px-3">
+        {/* Badge Icons at Top with compact spacing */}
+        <div className="absolute top-0 left-0 right-0 flex justify-between px-2 sm:px-3">
           {milestones.map((milestone, index) => (
-            <div key={index} className="relative z-10 flex flex-col items-center">
-              {/* Pin/Pointer */}
-              <div
-                className="w-0 h-0 border-l-4 border-r-4 border-b-[8px] sm:border-l-8 sm:border-r-8 sm:border-b-[12px] border-l-transparent border-r-transparent mb-1"
-                style={{
-                  borderBottomColor: milestone.completed ? "#22c55e" : "#4b5563", // green-500 or gray-600
-                }}
-              />
+            <div key={index} className={`relative transition-all duration-500 ${
+              index === currentIndex && milestone.completed
+                ? "scale-150 animate-pulse" 
+                : milestone.completed 
+                ? "scale-105 opacity-100"
+                : index === currentIndex 
+                ? "scale-105 animate-bounce" 
+                : "scale-100 opacity-75"
+            }`}>
+              {/* Simplified particle effects */}
+              {index === currentIndex && milestone.completed && (
+                <div className="absolute -top-1 -right-1 w-2 h-2 text-yellow-300 animate-pulse">
+                  <Sparkles className="w-full h-full" />
+                </div>
+              )}
+              
+              {/* Badge glow effect - smaller blur */}
+              <div className={`absolute inset-0 rounded-full blur-sm transition-opacity duration-700 ${
+                milestone.completed 
+                  ? index === currentIndex 
+                    ? "opacity-70 bg-yellow-400/50" 
+                    : "opacity-40 bg-green-400/30"
+                  : index === currentIndex 
+                    ? "opacity-30 bg-blue-400/30" 
+                    : "opacity-0"
+              }`}></div>
 
-              {/* Icon */}
-              <div className={`w-6 h-6 sm:w-8 sm:h-8 lg:w-10 lg:h-10 transition-transform duration-300 ${milestone.completed ? "scale-125" : ""}`}>
+              {/* Badge Icon with smaller size */}
+              <div className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 relative">
                 <img
                   src={milestone.icon}
                   alt={milestone.label}
-                  className={`w-full h-full object-contain rounded-full
-                    ${!milestone.completed ? "grayscale opacity-40" : ""}`}
+                  className={`w-full h-full object-contain rounded-full transition-all duration-500 ${
+                    milestone.completed
+                      ? index === currentIndex 
+                        ? "drop-shadow-[0_0_5px_rgba(250,204,21,0.7)] brightness-110"
+                        : "drop-shadow-[0_0_3px_rgba(74,222,128,0.5)]"
+                      : index === currentIndex 
+                        ? "brightness-110 drop-shadow-[0_0_3px_rgba(96,165,250,0.5)]"
+                        : "grayscale-[70%] opacity-50"
+                  }`}
                 />
-              </div>
-
-              {/* Label and Points */}
-              <div className="text-center">
-                <span className={`text-[10px] sm:text-xs text-center whitespace-nowrap ${milestone.completed ? "text-green-300" : "text-gray-400"}`}>
-                  {milestone.label}
-                </span>
-                <span className="block text-[8px] sm:text-[10px] text-gray-500">{milestone.points} pts</span>
-                <span className="block text-[8px] sm:text-[10px] text-gray-500">{milestone.threshold}%</span>
+                
+                {/* Smaller check mark */}
+                {milestone.completed && (
+                  <div className="absolute -bottom-0.5 -right-0.5 bg-green-500 rounded-full w-3 h-3 flex items-center justify-center border border-black">
+                    <svg width="6" height="6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M5 13L9 17L19 7" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </div>
+                )}
               </div>
             </div>
           ))}
         </div>
+
+        {/* Connected Path Line - Thinner */}
+        <div className="absolute top-1/2 left-2 right-2 sm:left-4 sm:right-4 h-2 -translate-y-1/2 z-0">
+          {/* Background track */}
+          <div className="absolute inset-0 h-1.5 bg-gray-700/50 rounded-full"></div>
+          
+          {/* Glowing progress line */}
+          <div
+            className="absolute inset-0 h-1.5 rounded-full bg-gradient-to-r from-blue-400 via-indigo-500 to-purple-600 transition-all duration-1000 overflow-hidden"
+            style={{ width: `${completionPercentage}%` }}
+          >
+            {/* Animated shimmer effect */}
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent animate-shimmer"></div>
+          </div>
+        </div>
+
+        {/* Milestone Markers and Labels - More compact */}
+        {milestones.map((milestone, index) => (
+          <div key={index} className="relative z-10 flex flex-col items-center mt-14 sm:mt-16">
+            {/* Triangle Arrow Marker - Smaller */}
+            <div className="relative">
+              <div
+                className={`w-0 h-0 border-l-[4px] border-r-[4px] border-b-[6px] border-l-transparent border-r-transparent transition-all duration-300 ${
+                  milestone.completed 
+                    ? index === currentIndex 
+                      ? "border-b-yellow-400 animate-bounce-slow" 
+                      : "border-b-green-400"
+                    : index === currentIndex 
+                      ? "border-b-blue-400 animate-pulse" 
+                      : "border-b-gray-500"
+                }`}
+              />
+              
+              {/* Smaller pulsing dot */}
+              {index === currentIndex && (
+                <div className="absolute -top-1.5 left-1/2 transform -translate-x-1/2 w-2 h-2 rounded-full bg-blue-400 animate-ping opacity-75"></div>
+              )}
+            </div>
+
+            {/* More compact labels */}
+            <div className="text-center mt-2 bg-white/5 px-1.5 py-0.5 rounded-md border border-white/10">
+              <span className={`block text-[8px] sm:text-[18px] font-semibold whitespace-nowrap transition-all duration-300 ${
+                milestone.completed 
+                  ? index === currentIndex 
+                    ? "text-yellow-300" 
+                    : "text-green-300" 
+                  : index === currentIndex 
+                    ? "text-blue-300" 
+                    : "text-gray-400"
+              }`}>
+                {milestone.label}
+              </span>
+              <span className={`block text-[8px] sm:text-[10px] mt-0.5 transition-all duration-300 ${
+                milestone.completed 
+                  ? index === currentIndex 
+                    ? "text-yellow-400" 
+                    : "text-green-400" 
+                  : index === currentIndex 
+                    ? "text-blue-400" 
+                    : "text-gray-500"
+              }`}>
+                {milestone.points.toLocaleString()}
+              </span>
+            </div>
+          </div>
+        ))}
+      </div>
       </CardContent>
-    </Card>
+        </Card>
   );
 };
 
-// Current Level Component
-const CurrentLevel: React.FC<{
-  eventPoints: EventPointsData | null;
-}> = ({ eventPoints }) => {
-  // Find the first incomplete level
-  const currentLevel = eventPoints?.levels.find(
-    (level) => level.completed_percentage < 100
-  ) || eventPoints?.levels[0];
-
-  return (
-    <Card className="hover:shadow-2xl hover:shadow-green-500/20 transition-all duration-300 w-full sm:w-1/2 xl:w-full">
-      <CardContent>
-        <div className="flex items-center justify-between mb-4 pt-4">
-          <h3 className="text-lg font-bold text-white">Current Level</h3>
-          <Medal className="w-5 h-5 text-green-400" />
-        </div>
-        <div className="text-center">
-          <p className="text-2xl font-bold text-green-400 mb-2">
-            {currentLevel ? currentLevel.level_name : "Level 1"}
-          </p>
-          {eventPoints && (
-            <p className="text-sm text-gray-400 mb-2">{eventPoints.event_name}</p>
-          )}
-          <div className="w-full bg-white/10 rounded-full h-2 overflow-hidden">
-            <div
-              className="h-2 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full transition-all duration-1000"
-              style={{ width: `${currentLevel?.completed_percentage || 0}%` }}
-            />
-          </div>
-          <p className="text-xs text-gray-500 mt-2">
-            {currentLevel?.points_earned || 0}/{currentLevel?.points_possible || 0} Points
-          </p>
-        </div>
-      </CardContent>
-    </Card>
-  );
-};
-
-const AttendanceStreak = ({ streak }: { streak: { current_streak: number; max_streak: number; attendance_percentage: number; last_login: string; login_count: number } | null }) => {
-  return (
-    <Card className="hover:shadow-2xl hover:shadow-orange-500/20 transition-all duration-300">
-      <CardContent>
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 pt-4">
-          <div className="flex items-center gap-2 mb-2 sm:mb-0">
-            <h3 className="text-base sm:text-lg font-bold text-white">Attendance Streak</h3>
-          </div>
-        </div>
-
-        <div className="flex flex-col sm:flex-row items-center justify-between pt-2 sm:pt-4">
-          <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-r from-orange-500 to-red-500 rounded-full flex items-center justify-center mb-3 sm:mb-4">
-            <Flame className="w-6 h-6 sm:w-8 sm:h-8 lg:w-10 lg:h-10 text-white" />
-          </div>
-          <div className="text-center sm:text-right sm:mr-4 mb-2 sm:mb-4">
-            <div className="text-2xl sm:text-3xl font-bold text-orange-400 mb-1 sm:mb-2">{streak?.current_streak ?? 0}</div>
-            <p className="text-xs sm:text-sm text-gray-300">Days in a row</p>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
-};
-
-const DailyGraph: React.FC<{
+const WeeklyGraph: React.FC<{
   student_profile: StudentProfile;
   studentName: string;
 }> = ({ student_profile, studentName }) => {
@@ -324,7 +450,7 @@ const DailyGraph: React.FC<{
   const [graphLoading, setGraphLoading] = useState(false);
   const [graphError, setGraphError] = useState<string | null>(null);
   const [hoveredPoint, setHoveredPoint] = useState<HoverPointData | null>(null);
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [hoverPosition, setHoverPosition] = useState({ x: 0, y: 0 });
 
   // Function to update daily points data from the synchronized API call
   const updateDailyPoints = (eventId: string, data: DailyPointsData[]) => {
@@ -338,7 +464,7 @@ const DailyGraph: React.FC<{
   useEffect(() => {
     const handleDailyPointsUpdate = (e: CustomEvent) => {
       const { eventId, data } = e.detail;
-      console.log("DailyGraph received daily points update for event:", eventId, "with data:", data);
+      console.log("WeeklyGraph received daily points update for event:", eventId, "with data:", data);
       updateDailyPoints(eventId, data);
     };
 
@@ -357,12 +483,12 @@ const DailyGraph: React.FC<{
     };
   }, []);
 
-  // Generate last 30 days with real data, default to 0 for missing data
-  const generateLast30Days = () => {
+  // Generate last 7 days with real data, default to 0 for missing data
+  const generateLast7Days = () => {
     const days = [];
     const today = new Date();
 
-    for (let i = 29; i >= 0; i--) {
+    for (let i = 6; i >= 0; i--) {
       const date = new Date(today);
       date.setDate(date.getDate() - i);
       const dateStr = date.toISOString().split("T")[0];
@@ -374,26 +500,30 @@ const DailyGraph: React.FC<{
       days.push({
         date: dateStr,
         displayDate: date.getDate().toString(),
+        dayName: date.toLocaleDateString("en-US", { weekday: "short" }),
         month: date.toLocaleDateString("en-US", { month: "short" }),
         points: points,
+        isToday: i === 0,
       });
     }
 
     return days;
   };
 
-  const chartData = generateLast30Days();
+  const chartData = generateLast7Days();
   const dailyData = chartData.map((d) => d.points);
-  const maxValue = Math.max(...dailyData, 100); // Minimum scale of 100
-  const width = 1000;
-  const height = 300;
-  const padding = 50;
+  const maxValue = Math.max(...dailyData, 50); // Minimum scale of 50 for weekly view
+  const width = 800;
+  const height = 280;
+  const padding = 60;
 
   const getX = (index: number) => (index / (dailyData.length - 1)) * (width - 2 * padding) + padding;
   const getY = (value: number) => height - (value / maxValue) * (height - 2 * padding) - padding;
 
+  const weeklyTotal = dailyData.reduce((sum, val) => sum + val, 0);
+
   return (
-    <Card className="bg-gradient-to-br from-[#0f0f0f] via-[#1a1a2e] to-[#16213e] border-purple-500/30 hover:border-purple-400/50 transition-all duration-500 w-full p-3 sm:p-4 md:p-6 lg:p-8 h-[400px] sm:h-[450px] md:h-[520px] lg:h-[600px] xl:h-[650px] shadow-2xl shadow-purple-900/20">
+    <Card className="bg-gradient-to-br from-[#131862] to-[#0a1636] hover:border-purple-400/50 transition-all duration-500 w-full p-3 sm:p-4 md:p-6 lg:p-8 h-[420px] sm:h-[470px] md:h-[540px] lg:h-[620px] xl:h-[670px] shadow-2xl shadow-purple-900/20">
       <CardContent className="h-full flex flex-col p-2 sm:p-3 md:p-4 lg:p-6">
         {/* Header Section */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-3 sm:mb-4 md:mb-6 space-y-2 sm:space-y-0">
@@ -402,17 +532,17 @@ const DailyGraph: React.FC<{
               <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-white" />
             </div>
             <div className="flex-1 min-w-0">
-              <h3 className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl font-bold truncate bg-gradient-to-r from-white to-purple-200 bg-clip-text text-transparent">
-                {(studentName || student_profile.name).split(" ")[0]}'s Monthly Progress
+              <h3 className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl font-bold text-white truncate bg-gradient-to-r from-white to-purple-200 bg-clip-text">
+                {(studentName || student_profile.name).split(" ")[0]}'s Weekly Progress
               </h3>
-              <p className="text-xs sm:text-sm md:text-base text-gray-300 mt-1">Last 30 days performance</p>
+              <p className="text-xs sm:text-sm md:text-base text-gray-300 mt-1">Last 7 days performance</p>
             </div>
           </div>
           
           {/* Stats Summary */}
           <div className="flex items-center space-x-3 sm:space-x-4 md:space-x-6">
             <div className="text-center">
-              <div className="text-lg sm:text-xl md:text-2xl font-bold text-blue-400">{dailyData.reduce((sum, val) => sum + val, 0)}</div>
+              <div className="text-lg sm:text-xl md:text-2xl font-bold text-blue-400">{weeklyTotal}</div>
               <div className="text-xs sm:text-sm text-gray-400">High Points</div>
             </div>
             
@@ -428,13 +558,6 @@ const DailyGraph: React.FC<{
           {/* Responsive SVG Container */}
           <div 
             className="w-full h-full p-4 sm:p-5 md:p-6 lg:p-8 relative"
-            onMouseMove={(e) => {
-              const rect = e.currentTarget.getBoundingClientRect();
-              setMousePosition({
-                x: e.clientX - rect.left,
-                y: e.clientY - rect.top
-              });
-            }}
             onMouseLeave={() => setHoveredPoint(null)}
           >
             {/* Axis Labels */}
@@ -442,25 +565,27 @@ const DailyGraph: React.FC<{
               Points
             </div>
             <div className="absolute left-1/2 bottom-1 -translate-x-1/2 text-purple-300 text-xs sm:text-sm font-semibold">
-              Days (Last 30 Days)
+              Days of the Week 
             </div>
 
             <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-full">
               {/* Enhanced Grid Lines */}
               <defs>
                 <linearGradient id="gridGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#4f46e5" stopOpacity="0.1" />
-                  <stop offset="100%" stopColor="#7c3aed" stopOpacity="0.05" />
+                  <stop offset="0%" stopColor="#4f46e5" stopOpacity="0.15" />
+                  <stop offset="100%" stopColor="#7c3aed" stopOpacity="0.08" />
                 </linearGradient>
                 <linearGradient id="areaGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                  <stop offset="0%" stopColor="#a855f7" stopOpacity="0.4" />
-                  <stop offset="50%" stopColor="#8b5cf6" stopOpacity="0.2" />
-                  <stop offset="100%" stopColor="#7c3aed" stopOpacity="0.05" />
+                  <stop offset="0%" stopColor="#a855f7" stopOpacity="0.5" />
+                  <stop offset="50%" stopColor="#8b5cf6" stopOpacity="0.25" />
+                  <stop offset="100%" stopColor="#7c3aed" stopOpacity="0.08" />
                 </linearGradient>
                 <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stopColor="#a855f7" />
+                  <stop offset="0%" stopColor="#ec4899" />
+                  <stop offset="25%" stopColor="#f472b6" />
                   <stop offset="50%" stopColor="#ec4899" />
-                  <stop offset="100%" stopColor="#8b5cf6" />
+                  <stop offset="75%" stopColor="#f472b6" />
+                  <stop offset="100%" stopColor="#ec4899" />
                 </linearGradient>
                 <filter id="glow">
                   <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
@@ -491,15 +616,26 @@ const DailyGraph: React.FC<{
                 );
               })}
               
+              {/* Default line at 0 */}
+              <line
+                x1={padding}
+                x2={width - padding}
+                y1={height - padding}
+                y2={height - padding}
+                stroke="#ec4899"
+                strokeWidth="2"
+                opacity="0.6"
+              />
+              
               {/* Y Axis Labels */}
               {[0, 25, 50, 75, 100].map((val, i) => {
                 const y = getY((val / 100) * maxValue);
                 return (
                   <text 
                     key={i} 
-                    x={padding - 15} 
+                    x={padding - 20} 
                     y={y + 4} 
-                    fontSize="10" 
+                    fontSize="11" 
                     fill="#a855f7" 
                     textAnchor="end"
                     fontWeight="600"
@@ -509,40 +645,31 @@ const DailyGraph: React.FC<{
                 );
               })}
               
-              {/* X Axis Labels */}
-              {chartData.map((day, index) => {
-                const showLabel = index % 5 === 0 || index === chartData.length - 1;
-                const isMonthStart = index > 0 && day.month !== chartData[index - 1].month;
-
-                return (
-                  <g key={index}>
-                    {showLabel && (
-                      <text 
-                        x={getX(index)} 
-                        y={height - padding + 18} 
-                        fontSize="9" 
-                        fill="#a855f7" 
-                        textAnchor="middle"
-                        fontWeight="600"
-                      >
-                        {day.displayDate}
-                      </text>
-                    )}
-                    {isMonthStart && (
-                      <text
-                        x={getX(index)}
-                        y={height - padding + 32}
-                        fontSize="8"
-                        fill="#c084fc"
-                        textAnchor="middle"
-                        fontWeight="bold"
-                      >
-                        {day.month}
-                      </text>
-                    )}
-                  </g>
-                );
-              })}
+              {/* X Axis Labels - Show day names for weekly view */}
+              {chartData.map((day, index) => (
+                <g key={index}>
+                  <text 
+                    x={getX(index)} 
+                    y={height - padding + 20} 
+                    fontSize="11" 
+                    fill="#a855f7" 
+                    textAnchor="middle"
+                    fontWeight="bold"
+                  >
+                    {day.dayName}
+                  </text>
+                  <text
+                    x={getX(index)}
+                    y={height - padding + 35}
+                    fontSize="9"
+                    fill="#c084fc"
+                    textAnchor="middle"
+                    fontWeight="500"
+                  >
+                    {day.displayDate}
+                  </text>
+                </g>
+              ))}
               
               {/* Area Fill */}
               {dailyData.length > 0 && (
@@ -562,7 +689,7 @@ const DailyGraph: React.FC<{
                 <polyline
                   fill="none"
                   stroke="url(#lineGradient)"
-                  strokeWidth="3"
+                  strokeWidth="4"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   points={dailyData.map((v, i) => `${getX(i)},${getY(v)}`).join(" ")}
@@ -573,17 +700,30 @@ const DailyGraph: React.FC<{
               {/* Data Points with Hover */}
               {dailyData.map((value, index) => (
                 <g key={index}>
-                  {/* Invisible larger circle for better hover detection */}
+                  {/* Hover area for better detection */}
                   <circle 
                     cx={getX(index)} 
                     cy={getY(value)} 
-                    r="12" 
+                    r="15" 
                     fill="transparent" 
                     style={{ cursor: 'pointer' }}
-                    onMouseEnter={() => setHoveredPoint({ 
-                      index, 
-                      data: chartData[index] 
-                    })}
+                    className="data-point hover:opacity-50 transition-opacity duration-200"
+                    onMouseEnter={(e) => {
+                      const rect = e.currentTarget.getBoundingClientRect();
+                      const containerRect = e.currentTarget.closest('.relative')?.getBoundingClientRect();
+                      
+                      if (containerRect) {
+                        setHoverPosition({
+                          x: rect.left + rect.width / 2 - containerRect.left,
+                          y: rect.top + rect.height / 2 - containerRect.top
+                        });
+                      }
+                      
+                      setHoveredPoint({ 
+                        index, 
+                        data: chartData[index] 
+                      });
+                    }}
                     onMouseLeave={() => setHoveredPoint(null)}
                   />
                   
@@ -591,55 +731,31 @@ const DailyGraph: React.FC<{
                   <circle 
                     cx={getX(index)} 
                     cy={getY(value)} 
-                    r={hoveredPoint?.index === index ? "6" : "4"} 
+                    r={hoveredPoint?.index === index ? "7" : "5"} 
                     fill="white" 
-                    stroke="#a855f7" 
+                    stroke="#ec4899" 
                     strokeWidth="3"
                     filter="url(#glow)"
                     className={`transition-all duration-200 ${hoveredPoint?.index === index ? 'drop-shadow-lg' : ''}`}
+                    style={{ pointerEvents: 'none' }}
                   />
                   
-                  {/* Pulse animation for active points */}
+                  {/* Pulse animation for active points
                   {value > 0 && (
                     <circle
                       cx={getX(index)}
                       cy={getY(value)}
-                      r="8"
+                      r="10"
                       fill="transparent"
-                      stroke="#a855f7"
+                      stroke="#ec4899"
                       strokeWidth="2"
                       opacity="0.4"
                       className={hoveredPoint?.index === index ? "animate-ping" : ""}
+                      style={{ pointerEvents: 'none' }}
                     />
-                  )}
+                  )} */}
                 </g>
               ))}
-              
-              {/* Current day indicator */}
-              {chartData.length > 0 && (
-                <g>
-                  <line
-                    x1={getX(chartData.length - 1)}
-                    x2={getX(chartData.length - 1)}
-                    y1={padding}
-                    y2={height - padding}
-                    stroke="#22c55e"
-                    strokeWidth="2"
-                    strokeDasharray="6,3"
-                    opacity="0.8"
-                  />
-                  <text
-                    x={getX(chartData.length - 1)}
-                    y={padding - 8}
-                    fontSize="10"
-                    fill="#22c55e"
-                    textAnchor="middle"
-                    fontWeight="bold"
-                  >
-                    Today
-                  </text>
-                </g>
-              )}
             </svg>
           </div>
 
@@ -648,14 +764,13 @@ const DailyGraph: React.FC<{
             <div 
               className="absolute bg-black/90 text-white p-3 rounded-lg shadow-2xl border border-purple-500/50 pointer-events-none z-50 backdrop-blur-sm"
               style={{
-                left: `${mousePosition.x + 10}px`,
-                top: `${mousePosition.y - 60}px`,
-                transform: mousePosition.x > width * 0.7 ? 'translateX(-100%)' : 'translateX(0)',
+                left: `${hoverPosition.x + 10}px`,
+                top: `${hoverPosition.y - 60}px`,
+                transform: hoverPosition.x > width * 0.7 ? 'translateX(-100%)' : 'translateX(0)',
               }}
             >
               <div className="text-sm font-semibold text-purple-300">
-                {new Date(hoveredPoint.data.date).toLocaleDateString('en-US', { 
-                  weekday: 'short', 
+                {hoveredPoint.data.dayName}, {new Date(hoveredPoint.data.date).toLocaleDateString('en-US', { 
                   month: 'short', 
                   day: 'numeric' 
                 })}
@@ -691,7 +806,7 @@ const RecentTasks = ({ eventId }: { eventId: string }) => {
         return;
       }
 
-      const response = await fetch("https://leaderboard-backend-4uxl.onrender.com/api/student/recent_tasks_by_event/", {
+      const response = await fetch("https://leaderboard-backend-4uxl.onrender.com/api/student/recent_tasks_by_event", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -707,7 +822,7 @@ const RecentTasks = ({ eventId }: { eventId: string }) => {
       console.log("Recent tasks API response:", data);
 
       if (data?.recent_tasks) {
-        setTasks(data.recent_tasks.slice(0, 5));
+        setTasks(data.recent_tasks.slice(0, 10)); // Increase to 10 for scroll
       }
     } catch (error) {
       console.error("Error fetching recent tasks:", error);
@@ -720,39 +835,79 @@ const RecentTasks = ({ eventId }: { eventId: string }) => {
 }, [eventId]);
 
   return (
-    <Card className="hover:shadow-2xl hover:shadow-cyan-500/20 transition-all duration-300 w-full">
-      <CardContent>
-        <div className="flex items-center justify-between mb-4 pt-4">
-          <h3 className="text-lg font-bold text-white">Recent Tasks</h3>
-          <BookOpen className="w-5 h-5 text-cyan-400" />
+    <Card className="hover:shadow-2xl hover:shadow-cyan-500/20 transition-all duration-300 w-full h-full">
+      <CardContent className="p-4 sm:p-5 lg:p-6 h-full flex flex-col">
+        <div className="flex items-center justify-between mb-4 sm:mb-6">
+          <div className="flex items-center">
+            <div className="w-7 h-7 sm:w-8 sm:h-8 bg-cyan-500 rounded-full flex items-center justify-center mr-3 animate-spin">
+              <BookOpen className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
+            </div>
+            <div>
+              <h3 className="text-base sm:text-lg font-bold text-white">Recent Tasks</h3>
+              <p className="text-xs sm:text-sm text-gray-400">Latest assignments & missions</p>
+            </div>
+          </div>
+          <Badge className="bg-green-500 text-white border-green-500 animate-pulse text-xs">
+            {tasks.length} Tasks
+          </Badge>
         </div>
 
-        {loading ? (
-          <p className="text-gray-400">Loading recent tasks...</p>
-        ) : tasks.length === 0 ? (
-          <p className="text-gray-400">No recent tasks available.</p>
-        ) : (
-          <div className="space-y-3">
-            {tasks.map((task, index) => (
-              <div
-                key={index}
-                className="flex items-center space-x-3 p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-all duration-200"
-              >
-                {/* <div className={getStatusColor(task.task_status)}>{getStatusIcon(task.task_status)}</div> */}
-                <div className="flex-1">
-                  <p className={`text-sm font-medium ${task.task_status === "completed" ? "line-through text-gray-400" : "text-white"}`}>
-                    {task.task_name}
-                  </p>
-                  <p className="text-xs text-gray-400">{task.description}</p>
-                  <p className="text-xs text-gray-500">Deadline: {new Date(task.full_deadline).toLocaleDateString()}</p>
+        <div className="flex-1 overflow-y-auto custom-scrollbar">
+          {loading ? (
+            <div className="text-center py-8 text-gray-300 text-base sm:text-lg">
+              <div className="w-8 h-8 border-2 border-cyan-500 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
+              Loading recent tasks...
+            </div>
+          ) : tasks.length === 0 ? (
+            <div className="text-center py-8 text-gray-300 text-base sm:text-lg">
+              No recent tasks available
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {tasks.map((task, index) => (
+                <div
+                  key={index}
+                  className="flex items-center space-x-3 p-2 sm:p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-all duration-200 border border-transparent hover:border-cyan-500/30"
+                >
+                  <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-xs sm:text-sm font-bold ${
+                    task.task_status === "completed" 
+                      ? "bg-gradient-to-r from-green-400 to-green-600 text-white"
+                      : task.task_status === "in_progress"
+                        ? "bg-gradient-to-r from-yellow-400 to-yellow-600 text-white"
+                        : "bg-gradient-to-r from-gray-400 to-gray-600 text-white"
+                  }`}>
+                    {task.task_status === "completed" ? "✓" : index + 1}
+                  </div>
+                  <div className="flex-1 min-w-0 p-2">
+                    <div className="flex items-center space-x-2">
+                      <p className={`text-sm font-medium truncate mb-[2px] ${task.task_status === "completed" ? "line-through text-gray-400" : "text-white"}`}>
+                        {task.task_name}
+                      </p>
+                      {task.task_status === "completed" && (
+                        <Badge className="bg-green-500 text-white text-xs px-1.5 py-0 border-green-500 mb-[2px]">
+                          Done
+                        </Badge>
+                      )}
+                    </div>
+                    <p className="text-xs text-gray-400 truncate">{task.description}</p>
+                    <div className="flex items-center space-x-2 mt-1">
+                      <p className="text-xs text-gray-500">
+                        Deadline: {new Date(task.full_deadline).toLocaleDateString()}
+                      </p>
+                      <div className="flex items-center">
+                        <Target className="w-2.5 h-2.5 text-cyan-400 mr-1" />
+                        <span className="text-xs text-cyan-400">{task.total_points} pts</span>
+                      </div>
+                    </div>
+                  </div>
+                  <Badge className="text-xs bg-yellow-500/20 text-yellow-300 border-yellow-500 flex-shrink-0">
+                    {task.total_points} pts
+                  </Badge>
                 </div>
-                <Badge className="text-xs bg-yellow-500/20 text-yellow-300 border-yellow-500">
-                  {task.total_points} pts
-                </Badge>
-              </div>
-            ))}
-          </div>
-        )}
+              ))}
+            </div>
+          )}
+        </div>
       </CardContent>
     </Card>
   );
@@ -768,8 +923,10 @@ interface HoverPointData {
   data: {
     date: string;
     displayDate: string;
+    dayName: string;
     month: string;
     points: number;
+    isToday: boolean;
   };
 }
 
@@ -823,88 +980,10 @@ interface DashboardData {
   challenges: Challenge[];
 }
 
-const StatCard = ({
-  icon,
-  iconBg,
-  highlight,
-  label,
-  value,
-  subLabel,
-  progress,
-  progressColor,
-  progressWidth,
-  bgGradient,
-  isAnimated = false,
-  onClick,
-}: {
-  icon: React.ReactNode;
-  iconBg: string;
-  iconColor?: string;
-  highlight?: string;
-  label: string;
-  value: React.ReactNode;
-  subLabel?: string;
-  progress?: boolean;
-  progressFrom?: string;
-  progressTo?: string;
-  progressColor?: string;
-  progressWidth?: string;
-  bgGradient?: string;
-  isAnimated?: boolean;
-  onClick?: () => void;
-}) => (
-  <div
-    className={`group relative rounded-2xl p-6 transition-all duration-500 hover:scale-[1.02] hover:shadow-2xl hover:shadow-purple-500/20 border border-white/10 ${bgGradient ? bgGradient : "bg-white/10"} backdrop-blur-xl cursor-pointer ${isAnimated ? "animate-pulse" : ""}`}
-    onClick={onClick}
-  >
-    {/* Sparkle Effect */}
-    <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-      <Sparkles className="w-4 h-4 text-yellow-400 animate-pulse" />
-    </div>
-
-    {/* Modern Card Header */}
-    <div className="flex items-start space-x-7 mb-6">
-      <div
-        className={`w-12 h-12 rounded-full flex items-center justify-center shadow-lg ${iconBg} group-hover:scale-110 transition-transform duration-300`}
-      >
-        {icon}
-      </div>
-      {highlight && (
-        <span className={`text-xs font-semibold px-3 py-1 rounded-full bg-white/5 ${highlight} animate-bounce`}>
-          {highlight}
-        </span>
-      )}
-      <div>
-        <p className="text-3xl font-extrabold text-white mb-1 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-purple-300 group-hover:to-pink-300 group-hover:bg-clip-text transition-all duration-300">
-          {value}
-        </p>
-        <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-1">{label}</p>
-      </div>
-    </div>
-
-    {/* Main Content */}
-    <div>
-      {subLabel && <p className="text-sm text-gray-500 mb-2">{subLabel}</p>}
-      {progress && (
-        <div className="w-full bg-white/10 rounded-full h-2 overflow-hidden">
-          <div
-            className={`h-2 rounded-full transition-all duration-1000 ${progressColor || ""} relative`}
-            style={{ width: progressWidth || "100%" }}
-          >
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-pulse"></div>
-          </div>
-        </div>
-      )}
-    </div>
-
-    {/* Glow Effect */}
-    <div className="absolute inset-0 bg-gradient-to-br from-purple-600/0 via-pink-600/0 to-purple-600/0 group-hover:from-purple-600/[0.08] group-hover:via-pink-600/[0.08] group-hover:to-purple-600/[0.08] rounded-2xl transition-all duration-500 pointer-events-none" />
-  </div>
-);
 
 const StudentDashboard: React.FC = () => {
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
-  const [activeTab, setActiveTab] = useState("Overall");
+  const [activeTab,] = useState("Overall");
   const [, setShowLevelUp] = useState(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [streak, setStreak] = useState<{
@@ -1012,7 +1091,7 @@ const StudentDashboard: React.FC = () => {
 
   const getJwtToken = (): string | null => {
     const cookies = document.cookie.split(";");
-    for (let cookie of cookies) {
+    for (const cookie of cookies) {
       const [name, value] = cookie.trim().split("=");
       if (name === "jwt") {
         return value;
@@ -1272,51 +1351,115 @@ const StudentDashboard: React.FC = () => {
                 </button>
               </div>
             ) : (
-              <div className="items-center mb-6 sm:mb-8 space-x-6">
+              <div className="items-center mb-4 sm:mb-6">
                 <Milestone eventPoints={eventPointsData} />
               </div>
             )}
 
             <div className="flex flex-col xl:flex-row items-stretch space-y-6 xl:space-y-0 xl:space-x-6 mb-6">
               <div className="w-full xl:w-2/3">
-                <DailyGraph 
+                <WeeklyGraph 
                   student_profile={student_profile}
                   studentName={studentName}
                 />
               </div>
-              <div className="flex flex-col sm:flex-row xl:flex-col w-full xl:w-1/3 space-y-4 sm:space-y-0 sm:space-x-4 xl:space-x-0 xl:space-y-4">
-                <div className="w-full sm:w-1/2 xl:w-full">
-                  <AttendanceStreak streak={streak} />
+            <div className="flex flex-col w-full xl:w-1/3 space-y-5 h-[420px] sm:h-[470px] md:h-[540px] lg:h-[620px] xl:h-[670px]">
+              {/* Leaderboard Card */}
+              <StatCardModern
+              icon={<Trophy className="w-18 h-18 text-white item-center " />}
+              iconBg="bg-gradient-to-r from-blue-600 to-blue-800 mt-15 p-4"
+              label={
+                <div className="absolute top-4 right-6 text-xs font-semibold px-3 py-1 rounded-full bg-white/10 text-blue-300 uppercase tracking-wider z-10">
+                LEADERBOARD RANK
                 </div>
-                <div className="w-full sm:w-1/2 xl:w-full">
-                  <StatCard
-                    icon={<Trophy className="w-6 h-6 text-white" />}
-                    iconBg="bg-blue-500"
-                    label="Leaderboard"
-                    value={leaderboardRank}
-                    subLabel={`Top ${leaderboardRank === "--" ? "--" : Math.round(((matchedEntry?.rank || leaderboardData.total_students) / leaderboardData.total_students) * 100)}%`}
-                    progress
-                    progressColor="bg-gradient-to-r from-blue-400 to-cyan-500"
-                    progressWidth={leaderboardRank === "--" ? "0%" : "85%"}
-                    bgGradient="bg-gradient-to-br from-blue-800/30 via-blue-700/30 to-cyan-900/30"
-                  />
+              }
+              value={
+                <div className="flex items-center">
+                <span className="text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">{leaderboardRank}</span>
+                <Badge className="ml-2 bg-blue-500/20 text-blue-300 border-blue-500/30 text-5xl">
+                  of {leaderboardData.total_students}
+                </Badge>
                 </div>
-                <div className="w-full sm:w-1/2 xl:w-full">
-                  <CurrentLevel eventPoints={eventPointsData} />
+              }
+              subLabel={`Among all participants in ${eventPointsData?.event_name || 'this event'}`}
+              className="flex-1 relative overflow-hidden"
+              />
+
+              {/* Current Level Card with Enhanced Visual */}
+              <StatCardModern
+              icon={<Medal className="w-8 h-8 text-white" />}
+              iconBg="bg-gradient-to-br from-green-500 to-emerald-600 mt-10"
+              label={
+                <div className="absolute top-4 right-6 text-xs font-semibold px-3 py-1 rounded-full bg-white/10 text-green-300 uppercase tracking-wider z-10">
+                CURRENT LEVEL
                 </div>
-              </div>
+              }
+              value={
+                <div className="flex items-center">
+                <span className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-500">
+                  {eventPointsData?.levels?.find((level) => level.completed_percentage < 100)?.level_name || eventPointsData?.levels?.[0]?.level_name || 'Level 1'}
+                </span>
+                </div>
+              }
+              subLabel={
+                <div className="flex items-center justify-between w-full">
+                <span>{eventPointsData?.event_name || ''}</span>
+                <span className="text-green-400 font-medium text-sm">
+                  {eventPointsData?.total_points_earned || 0}/{eventPointsData?.total_event_points || 0} pts
+                </span>
+                </div>
+              }
+              progress
+              progressValue={eventPointsData ? (((eventPointsData.total_points_earned || 0) / (eventPointsData.total_event_points || 1)) * 100) : 0}
+              progressText="Total Progress"
+              className="flex-1 relative overflow-hidden mb-2"
+              />
+
+              {/* Attendance Streak Card with Enhanced Visual */}
+              <StatCardModern
+              icon={<Flame className="w-8 h-8 text-white" />}
+              iconBg="bg-gradient-to-br from-orange-500 to-red-500 mt-14"
+              label={
+                <div className="absolute top-4 right-6 text-xs font-semibold px-3 py-1 rounded-full bg-white/10 text-orange-300 uppercase tracking-wider z-10">
+                CURRENT STREAK
+                </div>
+              }
+              value={
+                <div className="flex items-center">
+                <span className="text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-500">
+                  {streak?.current_streak ?? 0}
+                </span>
+                <span className="ml-2 text-orange-400 text-[35px] font-bold">days</span>
+                {(streak?.current_streak ?? 0) > 0 && (
+                  <div className="ml-2 animate-bounce">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M15 17H20L18 20H15V23L9 16.5L15 10V13H18L15 17Z" fill="#f97316" />
+                    <path d="M8 7V4H11L9 1H4L6 4H3L8 7Z" fill="#f97316" />
+                  </svg>
+                  </div>
+                )}
+                </div>
+              }
+              subLabel={
+                <div className="flex justify-between items-center w-full">
+                <span>Streak in Progress! Keep the Heat!</span>
+                </div>
+              }
+              className="flex-1 relative"
+              />
+            </div>
             </div>
 
-            {/* Learning Journey with Game Elements */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-2 mb-8 gap-4 lg:gap-5">
-              <div className="lg:col-span-2 xl:col-span-1">
+            {/* Learning Journey with Game Elements - Fixed Height Layout */}
+            <div className="grid grid-cols-1 xl:grid-cols-2 mb-8 gap-6 h-[600px]">
+              <div className="w-full">
                 <RecentTasks eventId={eventPointsData?.event_id || ""} />
               </div>
-              {/* Enhanced Leaderboard */}
-              <div className="lg:col-span-1 xl:col-span-1">
+              {/* Enhanced Leaderboard - Hall of Fame */}
+              <div className="w-full">
                 <Card className="bg-white/10 backdrop-blur-sm border-white/20 h-full">
                   <CardContent className="p-4 sm:p-5 lg:p-6 h-full flex flex-col">
-                    <div className="flex items-center justify-between mb-4 sm:mb-6">
+                    <div className="flex items-center justify-between">
                       <div className="flex items-center">
                         <div className="w-7 h-7 sm:w-8 sm:h-8 bg-yellow-500 rounded-full flex items-center justify-center mr-3 animate-spin">
                           <Trophy className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
@@ -1331,84 +1474,70 @@ const StudentDashboard: React.FC = () => {
                       </Badge>
                     </div>
 
-                    <div className="flex space-x-1 mb-4 sm:mb-6">
-                      {["Overall"].map((tab) => (
-                        <button
-                          key={tab}
-                          onClick={() => setActiveTab(tab)}
-                          className={`px-3 py-1 rounded text-sm transition-all ${
-                            activeTab === tab
-                              ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white"
-                              : "text-gray-400 hover:text-white"
-                          }`}
-                        >
-                          {tab}
-                        </button>
-                      ))}
-                    </div>
+                    
 
-                    <div className="space-y-2 sm:space-y-3 flex-1 overflow-y-auto">
+                    <div className="space-y-2 sm:space-y-3 flex-1 overflow-y-auto custom-scrollbar py-4 sm:py-6">
                       {leaderboard.length === 0 ? (
-                        <div className="text-center py-8 text-gray-300 text-base sm:text-lg">
-                          No students have participated
-                        </div>
+                      <div className="text-center py-8 text-gray-300 text-base sm:text-lg">
+                        No students have participated
+                      </div>
                       ) : (
-                        leaderboard.slice(0, 5).map((student, index) => (
+                      leaderboard.slice(0, 4).map((student, index) => (
+                        <div
+                        key={student._id}
+                        className={`flex items-center p-3 sm:p-5 rounded-lg transition-all hover:scale-[1.02] ${
+                          student.name === currentUserName
+                          ? "bg-gradient-to-r from-yellow-600/20 to-yellow-600/20 border border-yellow-500/30 animate-pulse"
+                          : "bg-white/5 hover:bg-white/10"
+                        }`}
+                        >
+                        <div className="flex items-center space-x-2 sm:space-x-3 flex-1">
                           <div
-                            key={student._id}
-                            className={`flex items-center p-2 sm:p-3 rounded-lg transition-all hover:scale-[1.02] ${
-                              student.name === currentUserName
-                                ? "bg-gradient-to-r from-yellow-600/20 to-yellow-600/20 border border-yellow-500/30 animate-pulse"
-                                : "bg-white/5 hover:bg-white/10"
-                            }`}
+                          className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-xs sm:text-sm font-bold relative ${
+                            index === 0
+                            ? "bg-gradient-to-r from-yellow-400 to-yellow-600 text-white"
+                            : index === 1
+                              ? "bg-gradient-to-r from-gray-300 to-gray-500 text-white"
+                              : index === 2
+                              ? "bg-gradient-to-r from-orange-400 to-orange-600 text-white"
+                              : "bg-gradient-to-r from-purple-500 to-pink-500 text-white"
+                          }`}
                           >
-                            <div className="flex items-center space-x-2 sm:space-x-3 flex-1">
-                              <div
-                                className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-xs sm:text-sm font-bold relative ${
-                                  index === 0
-                                    ? "bg-gradient-to-r from-yellow-400 to-yellow-600 text-white"
-                                    : index === 1
-                                      ? "bg-gradient-to-r from-gray-300 to-gray-500 text-white"
-                                      : index === 2
-                                        ? "bg-gradient-to-r from-orange-400 to-orange-600 text-white"
-                                        : "bg-gradient-to-r from-purple-500 to-pink-500 text-white"
-                                }`}
-                              >
-                                {student.name ? student.name.charAt(0) : "?"}
-                                {index < 3 && (
-                                  <div className="absolute -top-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 bg-yellow-400 rounded-full flex items-center justify-center">
-                                    <Crown className="w-1.5 h-1.5 sm:w-2 sm:h-2 text-white" />
-                                  </div>
-                                )}
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center space-x-2">
-                                  <p className="font-semibold text-white text-sm sm:text-base truncate">{student.name || "Unknown"}</p>
-                                  {student.name === currentUserName && (
-                                    <Badge className="bg-yellow-500 text-white text-xs px-1.5 py-0 border-yellow-500 animate-bounce">
-                                      You
-                                    </Badge>
-                                  )}
-                                </div>
-                                <div className="flex items-center space-x-2">
-                                  <p className="text-xs sm:text-sm text-gray-400">Level {student.level}</p>
-                                  <div className="flex items-center">
-                                    <Flame className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-orange-400 mr-1" />
-                                    <span className="text-xs text-orange-400"></span>
-                                  </div>
-                                </div>
-                              </div>
+                          {student.name ? student.name.charAt(0) : "?"}
+                          {index < 3 && (
+                            <div className="absolute -top-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 bg-yellow-400 rounded-full flex items-center justify-center">
+                            <Trophy className="w-1.5 h-1.5 sm:w-2 sm:h-2 text-white" />
                             </div>
-                            <div className="text-right">
-                              <p className="font-bold text-white text-sm sm:text-base">{student.total_score.toLocaleString()}</p>
-                              <div className="flex items-center space-x-1 justify-end">
-                                {index < 3 && <Trophy className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-yellow-400 animate-bounce" />}
-                                <Star className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-yellow-400 animate-pulse" />
-                                <Zap className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-blue-400" />
-                              </div>
+                          )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                          <div className="flex items-center space-x-2">
+                            <p className="font-semibold text-white text-sm sm:text-base truncate">{student.name || "Unknown"}</p>
+                            {student.name === currentUserName && (
+                            <Badge className="bg-yellow-500 text-white text-xs px-1.5 py-0 border-yellow-500 animate-bounce">
+                              You
+                            </Badge>
+                            )}
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <p className="text-xs sm:text-sm text-gray-400">Level {student.level}</p>
+                            <div className="flex items-center">
+                            <Flame className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-orange-400 mr-1" />
+                            <span className="text-xs text-orange-400">{student.streak || 0}</span>
                             </div>
                           </div>
-                        ))
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-bold text-white text-sm sm:text-base">{student.total_score.toLocaleString()}</p>
+                          <div className="flex items-center space-x-1 justify-end">
+                          {index < 3 && <Trophy className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-yellow-400 animate-bounce" />}
+                          <Star className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-yellow-400 animate-pulse" />
+                          <Zap className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-blue-400" />
+                          </div>
+                        </div>
+                        </div>
+                      ))
                       )}
                     </div>
 
@@ -1416,17 +1545,16 @@ const StudentDashboard: React.FC = () => {
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-2">
                           <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-xs font-bold text-white animate-pulse">
-                            {leaderboardRank}
+                            {currentUserName ? currentUserName.charAt(0) : "?"}
                           </div>
-                          <span className="text-white font-semibold text-sm sm:text-base">Your Battle Position</span>
+                          <div>
+                            <p className="text-xs text-gray-400">Your Position</p>
+                                                        <p className="font-semibold text-white text-sm">{currentUserName || "Your Name"}</p>
+                          </div>
                         </div>
                         <div className="text-right">
-                          <p className="font-bold text-white text-sm sm:text-base">
-                            {eventPointsData ? eventPointsData.total_points_earned.toLocaleString() : student_profile.total_score.toLocaleString()} XP
-                          </p>
-                          <p className="text-xs text-green-400 animate-bounce">
-                            {eventPointsData ? `${eventPointsData.event_name} Event` : "+150 this week"} 🚀
-                          </p>
+                          <p className="font-bold text-white text-sm">{leaderboardRank}</p>
+                          <p className="text-xs text-gray-400">Rank</p>
                         </div>
                       </div>
                     </div>

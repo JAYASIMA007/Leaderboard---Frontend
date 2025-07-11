@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { ArrowLeft, Check, X, Eye, EyeOff } from "lucide-react";
-import snsLogo from "../../assets/logo.svg";
+import snsLogo from "../../assets/Logo.svg";
 
 const StudentResetPassword: React.FC = () => {
   const navigate = useNavigate();
@@ -26,69 +26,71 @@ const StudentResetPassword: React.FC = () => {
   const [passwordsMatch, setPasswordsMatch] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState("");
 
+  // Validate token on component mount
+  useEffect(() => {
+    const validateToken = async () => {
+      if (!token || !email) {
+        setError("Invalid password reset link.");
+        navigate("/studentforgotpassword", { state: { error: "Invalid password reset link. Please request a new one." } });
+        return;
+      }
+
+      try {
+        const response = await axios.get("https://leaderboard-backend-4uxl.onrender.com/api/student/validate-reset-token/", {
+          params: { token, email },
+        });
+
+        if (response.status === 200) {
+          // Token is valid, proceed with rendering the form
+          setError("");
+        }
+      } catch (er: any) {
+        const errorMessage = er.response?.data?.error || "The password reset link is invalid or has expired. Please request a new one.";
+        setError(errorMessage);
+        navigate("/studentforgotpassword", { state: { error: errorMessage } });
+      }
+    };
+
+    validateToken();
+  }, [token, email, navigate]);
+
   // Validate password as user types
   const validatePassword = (password: string) => {
-    // Set typing state to true when user starts typing
     if (password) {
       setIsTyping(true);
     }
 
-    // Validate minimum length
     setHasMinLength(password.length >= 8);
-
-    // Validate mixed case (one uppercase and one lowercase)
     setHasMixedCase(/[a-z]/.test(password) && /[A-Z]/.test(password));
-
-    // Validate number or symbol
     setHasNumberOrSymbol(/[0-9]/.test(password) || /[!@#$%^&*(),.?":{}|<>]/.test(password));
-
-    // Check if passwords match
     setPasswordsMatch(password === confirmPassword);
-
-    // Calculate password strength immediately when typing starts
     calculatePasswordStrength(password);
   };
 
   // Calculate password strength
   const calculatePasswordStrength = (password: string) => {
-    // Always show password strength when user is typing
     if (password.length === 0) {
       setPasswordStrength("");
       return;
     }
 
     let strength = 0;
-
     if (password.length >= 8) strength++;
     if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++;
     if (/[0-9]/.test(password)) strength++;
     if (/[!@#$%^&*(),.?":{}|<>]/.test(password)) strength++;
 
-    if (strength < 3) setPasswordStrength("weak");
-    else setPasswordStrength("strong");
+    setPasswordStrength(strength < 3 ? "weak" : "strong");
   };
-
-    
 
   // Validate confirm password
   const validateConfirmPassword = (confirmPwd: string) => {
     setPasswordsMatch(newPassword === confirmPwd);
   };
 
-  useEffect(() => {
-    if (!token || !email) {
-      setError("Invalid password reset link.");
-    }
-  }, [token, email]);
-
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-
-    if (!token || !email) {
-      setError("Invalid password reset link.");
-      return;
-    }
 
     if (!isPasswordValid()) {
       setError("Please ensure your password meets all requirements.");
@@ -111,15 +113,14 @@ const StudentResetPassword: React.FC = () => {
       const data = response.data as { success?: boolean; message?: string };
       if (response.status === 200) {
         setIsSuccess(true);
-        // Redirect to login after 2 seconds
         setTimeout(() => {
           navigate("/studentlogin");
         }, 3000);
       } else {
         setError(data.message || "Reset failed.");
       }
-    } catch (er: unknown) {
-      setError("Something went wrong. Please try again.");
+    } catch (er: any) {
+      setError(er.response?.data?.error || "Something went wrong. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -177,9 +178,8 @@ const StudentResetPassword: React.FC = () => {
                 </div>
               </div>
 
-              {/* Password requirements - only show when typing */}
               {isTyping && (
-                <div className="mb-6 rounded-md ">
+                <div className="mb-6 rounded-md">
                   <div className="grid grid-cols-2">
                     <ul className="space-y-2">
                       <li className="flex items-center text-xs">
@@ -196,7 +196,7 @@ const StudentResetPassword: React.FC = () => {
                         ) : (
                           <X className="h-4 w-4 text-red-500 mr-2" />
                         )}
-                        <span className={hasMixedCase ? "text-green-500 " : "text-red-500"}>
+                        <span className={hasMixedCase ? "text-green-500" : "text-red-500"}>
                           One uppercase and one lowercase
                         </span>
                       </li>
@@ -214,12 +214,8 @@ const StudentResetPassword: React.FC = () => {
                     <div className="flex justify-end">
                       {passwordStrength && (
                         <div className="text-sm text-gray-500">
-                          Password strength :{" "}
-                          <span
-                            className={`${
-                              passwordStrength === "strong" ? "text-green-500" : "text-red-500"
-                            }`}
-                          >
+                          Password strength:{" "}
+                          <span className={passwordStrength === "strong" ? "text-green-500" : "text-red-500"}>
                             {passwordStrength}
                           </span>
                         </div>
@@ -290,6 +286,3 @@ const StudentResetPassword: React.FC = () => {
 };
 
 export default StudentResetPassword;
-
-
-

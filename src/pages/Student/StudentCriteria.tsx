@@ -84,6 +84,7 @@ const StudentCriteria: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const passedEventId = location.state?.event_id;
+  const passedLevelId = location.state?.level_id;
 
   const fetchProgressData = async (eventId: string, levelId: string, taskIds: string[]) => {
     try {
@@ -91,13 +92,6 @@ const StudentCriteria: React.FC = () => {
       if (!jwt) {
         throw new Error('JWT token not found. Please log in again.');
       }
-      console.log('Sending data:', {
-        event_id: eventId,
-        jwt: jwt,
-        level_id: levelId,
-        task_ids: taskIds
-      });
-
       const response = await fetch('https://leaderboard-backend-4uxl.onrender.com/api/student/points_by_eventid/', {
         method: 'POST',
         headers: {
@@ -116,10 +110,8 @@ const StudentCriteria: React.FC = () => {
       }
 
       const data = await response.json();
-      console.log('Received data:', data);
 
       if (data.error && data.error === "Event not found") {
-        // If points are not allocated, return a default progress data with 0 progress
         return {
           level_id: levelId,
           tasks: taskIds.map(taskId => ({
@@ -151,7 +143,6 @@ const StudentCriteria: React.FC = () => {
         setLoading(true);
         setError(null);
 
-        // Fetch initial event data from the task details API
         const eventResponse = await fetch(`https://leaderboard-backend-4uxl.onrender.com/api/student/task-details/?event_id=${passedEventId}`);
         if (!eventResponse.ok) {
           throw new Error(`HTTP error: ${eventResponse.status}`);
@@ -160,17 +151,23 @@ const StudentCriteria: React.FC = () => {
         const eventResponseData: ApiResponse = await eventResponse.json();
         const eventDataFromSecondApi = eventResponseData.event;
 
-        // Fetch progress data using the data from the task details API
-        const levelId = eventDataFromSecondApi.levels[selectedLevel]?.level_id;
-        const taskIds = eventDataFromSecondApi.levels[selectedLevel]?.tasks.map(task => task.task_id) || [];
+        // Find the index of the level matching passedLevelId
+        let initialLevelIndex = 0;
+        if (passedLevelId) {
+          const levelIndex = eventDataFromSecondApi.levels.findIndex(level => level.level_id === passedLevelId);
+          initialLevelIndex = levelIndex !== -1 ? levelIndex : 0;
+        }
+        setSelectedLevel(initialLevelIndex);
+
+        const levelId = eventDataFromSecondApi.levels[initialLevelIndex]?.level_id;
+        const taskIds = eventDataFromSecondApi.levels[initialLevelIndex]?.tasks.map(task => task.task_id) || [];
         let progressData;
         try {
           progressData = await fetchProgressData(passedEventId, levelId, taskIds);
           if (progressData.error) {
-            // If progress API returns error, create default progress data with 0% progress
             progressData = {
               level_id: levelId,
-              tasks: eventDataFromSecondApi.levels[selectedLevel]?.tasks.map(task => ({
+              tasks: eventDataFromSecondApi.levels[initialLevelIndex]?.tasks.map(task => ({
                 task_id: task.task_id,
                 task_name: task.task_name,
                 earned_points: 0,
@@ -180,10 +177,9 @@ const StudentCriteria: React.FC = () => {
             };
           }
         } catch (err) {
-          // If fetchProgressData fails, create default progress data with 0% progress
           progressData = {
             level_id: levelId,
-            tasks: eventDataFromSecondApi.levels[selectedLevel]?.tasks.map(task => ({
+            tasks: eventDataFromSecondApi.levels[initialLevelIndex]?.tasks.map(task => ({
               task_id: task.task_id,
               task_name: task.task_name,
               earned_points: 0,
@@ -193,12 +189,11 @@ const StudentCriteria: React.FC = () => {
           };
         }
 
-        // Combine the data
         const combinedData = {
           ...eventDataFromSecondApi,
           progress: [{
             level_id: progressData.level_id,
-            level_name: eventDataFromSecondApi.levels[selectedLevel]?.level_name || '',
+            level_name: eventDataFromSecondApi.levels[initialLevelIndex]?.level_name || '',
             tasks: progressData.tasks.map((task: ProgressTask) => ({
               task_id: task.task_id,
               task_name: task.task_name,
@@ -219,7 +214,16 @@ const StudentCriteria: React.FC = () => {
     };
 
     fetchData();
-  }, [passedEventId, selectedLevel]);
+  }, [passedEventId, passedLevelId]);
+
+  useEffect(() => {
+    if (eventData && passedLevelId) {
+      const levelIndex = eventData.levels.findIndex(level => level.level_id === passedLevelId);
+      if (levelIndex !== -1 && levelIndex !== selectedLevel) {
+        setSelectedLevel(levelIndex);
+      }
+    }
+  }, [eventData, passedLevelId, selectedLevel]);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -303,7 +307,7 @@ const StudentCriteria: React.FC = () => {
               </button>
             </div>
             <div className="text-center mb-12">
-              <h1 className="text-5xl font-bold bg-gradient-to-r from-white via-purple-200 to-pink-200 bg-clip-text text-transparent mb-4">
+              <h1 className="text-5xl font-bold bg-gradient-to-r h-17 from-white via-purple-200 to-pink-200 bg-clip-text text-transparent mb-4">
                 {eventData.event_name}
               </h1>
               <p className="text-gray-300 text-lg max-w-2xl mx-auto">
@@ -500,16 +504,6 @@ const StudentCriteria: React.FC = () => {
                                         <p className="text-gray-400 text-sm mb-3 leading-relaxed">{subtask.description}</p>
                                         <div className="flex items-center gap-4 text-xs text-gray-500">
                                           <span>Due: {formatDate(subtask.deadline).split(',')[0]}</span>
-                                          <span>•</span>
-                                          <span className={`px-3 py-1 rounded-full text-xs font-medium ${subtask.status === 'completed'
-                                            ? 'bg-green-500/20 text-green-400 border border-green-500/20'
-                                            : subtask.status === 'in_progress'
-                                              ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/20'
-                                              : 'bg-white/[0.05] text-gray-400 border border-white/[0.1]'
-                                            }`}>
-                                            {subtask.status === 'completed' ? 'Complete' :
-                                              subtask.status === 'in_progress' ? 'In Progress' : 'Pending'}
-                                          </span>
                                         </div>
                                       </div>
                                     </div>

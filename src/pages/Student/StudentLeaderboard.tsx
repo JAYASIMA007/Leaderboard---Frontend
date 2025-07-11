@@ -9,11 +9,12 @@ import { ChevronsLeft, ChevronLeft, ChevronRight, ChevronsRight, Trophy, Rocket,
 
 // Assets
 import sampleProfile from "../../assets/sampleprofile.svg"
+import type { JSX } from "react/jsx-runtime"
 
 interface LeaderboardEntry {
+  email: string
   _id: string
   name: string | null
-  email?: string
   student_id: string
   total_score: number
   tests_taken: number
@@ -22,6 +23,7 @@ interface LeaderboardEntry {
   level: number
   status: string
   rank?: number
+  timestamp?: string | null
 }
 
 interface LeaderboardData {
@@ -32,6 +34,7 @@ interface LeaderboardData {
     rank: number
     points: number
     student_id?: string
+    timestamp?: string | null
   }
 }
 
@@ -153,7 +156,7 @@ const StudentLeaderboard: React.FC<StudentLeaderboardProps> = ({ onEventSelect }
 
       if (response.data.success) {
         const filterValidEntries = (entries: LeaderboardEntry[]) =>
-          entries.filter(entry => entry.name && entry.name.trim() !== "")
+          entries.filter(entry => entry.name && entry.name.trim() !== "" && entry.status !== "Pending")
 
         const filteredData: LeaderboardData = {
           overall: filterValidEntries(response.data.overall),
@@ -201,12 +204,12 @@ const StudentLeaderboard: React.FC<StudentLeaderboardProps> = ({ onEventSelect }
 
     // Status display for the status column
     let pointsText = ""
-    let pointsIcon: string | React.ReactNode = ""
+    let pointsIcon: string | JSX.Element = ""
     let pointsColor = "text-emerald-400"
 
     // Tooltip remains unchanged
     let tooltipText = ""
-    let tooltipIcon: React.ReactElement = <Rocket size={16} />
+    let tooltipIcon: JSX.Element = <Rocket size={16} />
     let tooltipColor = "text-green-400"
 
     // Check if the current student has zero points
@@ -217,14 +220,22 @@ const StudentLeaderboard: React.FC<StudentLeaderboardProps> = ({ onEventSelect }
       tooltipText = "Start completing tasks to climb the leaderboard!"
       tooltipIcon = <Rocket size={16} />
       tooltipColor = "text-green-400"
-    } else if (globalIndex === 0 || (currentData[0].total_score === student.total_score)) {
-      // Top rank or tied for top
+    } else if (globalIndex === 0 && currentData[0].total_score === student.total_score) {
+      // Top rank (first place)
       pointsText = `🏆 #1 Rank`
       pointsIcon = ""
       pointsColor = "text-yellow-400"
       tooltipText = `You're a champion! Keep earning to stay on top.`
       tooltipIcon = <Trophy size={16} />
       tooltipColor = "text-yellow-400"
+    } else if (currentData[0].total_score === student.total_score) {
+      // Tied for top score but not first place
+      pointsText = `⚡Beat the Clock! Next Time.`
+      pointsIcon = ""
+      pointsColor = "text-blue-400"
+      tooltipText = `You're tied for the top score! Complete tasks faster to claim #1 Rank next time.`
+      tooltipIcon = <Shield size={16} />
+      tooltipColor = "text-blue-400"
     } else {
       // Check if the current student's score matches the previous student's score
       let previousDifferentStudent: LeaderboardEntry | null = null
@@ -264,7 +275,7 @@ const StudentLeaderboard: React.FC<StudentLeaderboardProps> = ({ onEventSelect }
           pointsText = `🚀 Earn +${pointsNeeded} Pts to Rank ${actualRank - 1} ↑`
           pointsIcon = ""
           pointsColor = "text-emerald-400"
-          tooltipText = `Earn ${pointsNeeded} more points to Overtake rank ${nextHigherRank}.`
+          tooltipText = `Earn ${pointsNeeded} more points to overtake rank ${nextHigherRank}.`
           tooltipIcon = <Rocket size={16} />
           tooltipColor = "text-green-400"
         }
@@ -289,11 +300,10 @@ const StudentLeaderboard: React.FC<StudentLeaderboardProps> = ({ onEventSelect }
     if (!leaderboardData) return []
     let currentData: LeaderboardEntry[] = []
 
-    // Filter by level if a level-specific tab is selected
     if (activeTab.startsWith('level_')) {
       currentData = leaderboardData.levels[activeTab] || []
-    } else if (activeTab === 'overall') {
-      currentData = leaderboardData.overall
+    } else {
+      currentData = Array.isArray(leaderboardData.overall) ? leaderboardData.overall : []
     }
 
     const startIndex = (currentPage - 1) * itemsPerPage
@@ -303,15 +313,14 @@ const StudentLeaderboard: React.FC<StudentLeaderboardProps> = ({ onEventSelect }
 
   const getTotalPages = () => {
     if (!leaderboardData) return 0
-    let currentData: LeaderboardEntry[] = []
-    
+    let currentData = leaderboardData[activeTab as keyof LeaderboardData] || leaderboardData.overall
     if (activeTab.startsWith('level_')) {
       currentData = leaderboardData.levels[activeTab] || []
-    } else if (activeTab === 'overall') {
-      currentData = leaderboardData.overall
     }
-    
-    return Math.ceil(currentData.length / itemsPerPage)
+    if (Array.isArray(currentData)) {
+      return Math.ceil(currentData.length / itemsPerPage)
+    }
+    return 0
   }
 
   const totalPages = getTotalPages()
@@ -484,7 +493,7 @@ const StudentLeaderboard: React.FC<StudentLeaderboardProps> = ({ onEventSelect }
                             <span>{statusInfo.tooltip.text}</span>
                           </div>
                         )}
-                        <div className="absolute opacity-0 group-hover:opacity-100 bottom-full mb-2 w-max max-w-xs bg-gray-800 text-white text-xs rounded-lg py-2 px-3 shadow-lg flex items-center space-x-2">
+                        <div className="absolute hidden group-hover:block bottom-full mb-2 w-max max-w-xs bg-gray-800 text-white text-xs rounded-lg py-2 px-3 shadow-lg items-center space-x-2">
                           <span className={statusInfo.tooltip.color}>{statusInfo.tooltip.icon}</span>
                           <span>{statusInfo.tooltip.text}</span>
                         </div>
