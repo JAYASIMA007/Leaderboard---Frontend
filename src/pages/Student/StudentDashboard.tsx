@@ -326,13 +326,13 @@ const Milestone: React.FC<{
             }`}>
               {/* Simplified particle effects */}
               {index === currentIndex && milestone.completed && (
-                <div className="absolute -top-1 -right-1 w-2 h-2 text-yellow-300 animate-pulse">
-                  <Sparkles className="w-full h-full" />
+                <div className="absolute -top-1 -right-1 w-2 h-2 text-yellow-300  animate-sparkle-zap">
+                  <Sparkles className="w-full h-full text-yellow-300 drop-shadow-glow" />
                 </div>
               )}
               
               {/* Badge glow effect - smaller blur */}
-              <div className={`absolute inset-0 rounded-full blur-sm transition-opacity duration-700 ${
+              <div className={`absolute inset-0 rounded-full blur-sm transition-opacity duration-300 ${
                 milestone.completed 
                   ? index === currentIndex 
                     ? "opacity-70 bg-yellow-400/50" 
@@ -1367,7 +1367,7 @@ const StudentDashboard: React.FC = () => {
               {/* Leaderboard Card */}
               <StatCardModern
               icon={<Trophy className="w-18 h-18 text-white item-center " />}
-              iconBg="bg-gradient-to-r from-blue-600 to-blue-800 mt-15 p-4"
+              iconBg="bg-gradient-to-r from-blue-600 to-blue-800 mt-14 p-4"
               label={
                 <div className="absolute top-4 right-6 text-xs font-semibold px-3 py-1 rounded-full bg-white/10 text-blue-300 uppercase tracking-wider z-10">
                 LEADERBOARD RANK
@@ -1412,7 +1412,7 @@ const StudentDashboard: React.FC = () => {
               progress
               progressValue={eventPointsData ? (((eventPointsData.total_points_earned || 0) / (eventPointsData.total_event_points || 1)) * 100) : 0}
               progressText="Total Progress"
-              className="flex-1 relative overflow-hidden mb-2"
+              className="flex-1 relative overflow-hidden mb-5"
               />
 
               {/* Attendance Streak Card with Enhanced Visual */}
@@ -1466,11 +1466,11 @@ const StudentDashboard: React.FC = () => {
                         </div>
                         <div>
                           <h3 className="text-base sm:text-lg font-bold text-white">Hall of Fame</h3>
-                          <p className="text-xs sm:text-sm text-gray-400">Elite warriors this season</p>
+                          <p className="text-xs sm:text-sm text-gray-400">Elite warriors this Event</p>
                         </div>
                       </div>
                       <Badge className="bg-cyan-500 text-white border-cyan-500 animate-pulse text-xs">
-                        {leaderboardData.total_students} Players
+                        {leaderboardData.total_students} Total Players
                       </Badge>
                     </div>
 

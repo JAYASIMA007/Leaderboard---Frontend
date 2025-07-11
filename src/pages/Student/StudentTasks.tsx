@@ -1,6 +1,5 @@
-
 import { useState, useEffect } from "react";
-import { ArrowRight, RefreshCcw } from "lucide-react";
+import { ArrowRight, RefreshCcw, Calendar } from "lucide-react";
 import { Progress } from "../../components/ui/progress";
 import { motion, AnimatePresence } from "framer-motion";
 import Navbar from "../../components/Student/Navbar";
@@ -105,7 +104,7 @@ export default function StudentDashboard() {
   const [eventLoading, setEventLoading] = useState<boolean>(false);
   const [eventError, setEventError] = useState<string | null>(null);
   const [leaderboardData, setLeaderboardData] = useState<{ overall: any[]; weekly: any[]; monthly: any[] }>({ overall: [], weekly: [], monthly: [] });
-  const [,setStudentName] = useState<string>("");
+  const [, setStudentName] = useState<string>("");
   const [studentEmail, setStudentEmail] = useState<string>("");
   const [currentEventName, setCurrentEventName] = useState<string>("");
   const [progressKey, setProgressKey] = useState(0);
@@ -375,7 +374,11 @@ export default function StudentDashboard() {
     const dates = levelTasks
       .map(task => new Date(task.end_date))
       .filter(date => !isNaN(date.getTime()));
-    return dates.length ? new Date(Math.max(...dates.map(date => date.getTime()))).toLocaleDateString() : "No due date";
+    return dates.length ? new Date(Math.max(...dates.map(date => date.getTime()))).toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    }) : "No due date";
   };
 
   return (
@@ -399,7 +402,7 @@ export default function StudentDashboard() {
           </button>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
-          <div data-uuid="current-level-card" className="bg-white/[0.02] backdrop-blur-xl border border-white/[0.05] rounded-2xl p-3 sm:p-4">
+          <div className="bg-white/[0.02] backdrop-blur-xl border border-white/[0.05] rounded-2xl p-3 sm:p-4">
             <div className="flex items-center gap-2 sm:gap-4 text-xs sm:text-sm text-white mb-1">
               <img src={trophy} className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-500" alt="Trophy" />
               Current Level
@@ -409,7 +412,7 @@ export default function StudentDashboard() {
               {currentEventName ? `Event: ${currentEventName}` : 'Select an event to view tasks'}
             </div>
           </div>
-          <div data-uuid="xp-earned-card" className="bg-white/[0.02] backdrop-blur-xl border border-white/[0.05] rounded-2xl p-3 sm:p-4">
+          <div className="bg-white/[0.02] backdrop-blur-xl border border-white/[0.05] rounded-2xl p-3 sm:p-4">
             <div className="flex items-center gap-2 text-xs sm:text-sm text-white mb-1">
               <img src={xpIcon} className="w-4 h-4 sm:w-5 sm:h-5 text-blue-500" alt="XP Icon" />
               XP Earned
@@ -422,7 +425,7 @@ export default function StudentDashboard() {
               className="h-[12px] sm:h-[14px] bg-gradient-to-r from-gray-200 via-yellow-200 to-yellow-300 [&_.progress-indicator]:bg-gradient-to-r [&_.progress-indicator]:from-yellow-200 [&_.progress-indicator]:to-yellow-400"
             />
           </div>
-          <div data-uuid="rank-card" className="bg-white/[0.02] backdrop-blur-xl border border-white/[0.05] rounded-2xl p-3 sm:p-4">
+          <div className="bg-white/[0.02] backdrop-blur-xl border border-white/[0.05] rounded-2xl p-3 sm:p-4">
             <div className="flex items-center gap-2 text-xs sm:text-sm text-white mb-1">
               <img src={rank} className="w-4 h-4 sm:w-5 sm:h-5 text-purple-500" alt="Rank" />
               Your Rank
@@ -437,7 +440,7 @@ export default function StudentDashboard() {
               of {leaderboardData.overall.length} Individuals
             </div>
           </div>
-          <div data-uuid="available-tasks-card" className="bg-white/[0.02] backdrop-blur-xl border border-white/[0.05] rounded-2xl p-3 sm:p-4">
+          <div className="bg-white/[0.02] backdrop-blur-xl border border-white/[0.05] rounded-2xl p-3 sm:p-4">
             <div className="flex items-center gap-2 text-xs sm:text-sm text-white mb-1">
               <img src={batch} className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-500" alt="Batch" />
               Available Tasks
@@ -448,7 +451,7 @@ export default function StudentDashboard() {
             </div>
           </div>
         </div>
-        <div data-uuid="tasks-section" className="mb-6 sm:mb-8 bg-white/[0.02] backdrop-blur-xl border border-white/[0.05] rounded-2xl p-4 sm:p-6 lg:p-10">
+        <div className="mb-6 sm:mb-8 bg-white/[0.02] backdrop-blur-xl border border-white/[0.05] rounded-2xl p-4 sm:p-6 lg:p-10">
           <div className="flex flex-wrap gap-2 sm:gap-3 lg:gap-6 mb-4 sm:mb-6">
             <button
               className={`text-white bg-white/[0.02] backdrop-blur-xl p-2 sm:p-3 rounded-[20px] sm:rounded-[30px] border border-white/[0.05] shadow-xl hover:bg-gradient-to-r hover:from-white/[0.05] hover:to-white/[0.1] px-3 sm:px-4 lg:px-6 text-xs sm:text-sm lg:text-base font-medium transition-all duration-150 focus:outline-none flex items-center gap-1 sm:gap-2 ${selectedFilter === "Daily" ? 'bg-gradient-to-r from-white/[0.05] to-white/[0.1]' : ''}`}
@@ -526,6 +529,10 @@ export default function StudentDashboard() {
                           </div>
                         </div>
                       </div>
+                      <div className="flex items-center gap-1 text-xs sm:text-sm text-white/[0.7]">
+                        <Calendar className="w-3 h-3 sm:w-4 sm:h-4" />
+                        <span>Due: {dueDate}</span>
+                      </div>
                     </div>
                     <div className="mt-3 sm:mt-4 mb-3">
                       <label className="text-xs sm:text-sm text-white/[0.8] font-semibold">
@@ -578,7 +585,6 @@ export default function StudentDashboard() {
                           <span className="text-yellow-500">⚡</span>
                           <span>{levelPoints.points_earned} XP</span>
                         </div>
-                        <span>Due: {dueDate}</span>
                       </div>
                       <div className="flex items-center justify-between text-xs sm:text-sm text-white/[0.7]">
                         <div className="flex items-center gap-1">

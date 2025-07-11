@@ -452,11 +452,7 @@ const StudentCriteria: React.FC = () => {
                                 </div>
                                 <div>
                                   <div className="text-sm font-medium text-white">Task Progress</div>
-                                  <div className="text-xs text-gray-400">
-                                    {totalSubtasks === 0
-                                      ? (progressPercentage === 100 ? 'Completed' : 'Not Completed')
-                                      : `${completedSubtasks} of ${totalSubtasks} subtasks completed`}
-                                  </div>
+
                                 </div>
                               </div>
                             </div>

@@ -231,20 +231,20 @@ const EventsSelection = () => {
                                 }}
                             >
                                 {/* Event Header */}
-                                <div className="bg-gradient-to-r from-blue-300 via-blue-400 to-blue-400 p-4 sm:p-6 text-black relative overflow-hidden">
+                                <div className="bg-gradient-to-r from-blue-600  to-purple-500 p-4 sm:p-6 text-black relative overflow-hidden">
                                     <div className="absolute top-0 right-0 w-16 h-16 sm:w-20 sm:h-20 bg-white/10 rounded-full -mr-8 sm:-mr-10 -mt-8 sm:-mt-10" />
                                     <div className="absolute bottom-0 left-0 w-12 h-12 sm:w-16 sm:h-16 bg-white/10 rounded-full -ml-6 sm:-ml-8 -mb-6 sm:-mb-8" />
                                     <div className="relative z-10">
                                         <div className="flex items-center justify-between mb-2 sm:mb-3">
-                                            <Trophy className="w-6 h-6 sm:w-8 sm:h-8 text-black/80" />
+                                            <Trophy className="w-6 h-6 sm:w-8 sm:h-8 text-white/80" />
                                             <span className="text-xs sm:text-sm font-medium bg-black/10 px-2 sm:px-3 py-1 rounded-full">
                                                 {task.levels?.length || 0} Levels
                                             </span>
                                         </div>
-                                        <h3 className="text-lg sm:text-xl font-bold text-black mb-1 group-hover:text-black/80 transition-colors truncate">
+                                        <h3 className="text-lg sm:text-xl font-bold text-white mb-1 group-hover:text-black/80 transition-colors truncate">
                                             {task.event_name}
                                         </h3>
-                                        <p className="text-black/70 text-xs sm:text-sm truncate">
+                                        <p className="text-white/70 text-xs sm:text-sm truncate">
                                             {task.assigned_to?.map((admin: any) => admin.name).join(", ") || "No admins assigned"}
                                         </p>
                                     </div>

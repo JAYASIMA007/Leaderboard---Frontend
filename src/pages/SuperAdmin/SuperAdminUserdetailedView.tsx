@@ -231,7 +231,7 @@ const SuperAdminUserDetailView = () => {
                     <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-blue-400 to-blue-500 rounded-full mb-6 shadow-2xl">
                         <Trophy className="h-10 w-10 text-white" />
                     </div>
-                    <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                    <h1 className="text-4xl h-20 md:text-5xl lg:text-6xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                         {student.name}
                     </h1>
                     <p className="text-gray-600 text-lg md:text-xl max-w-2xl mx-auto">
@@ -269,8 +269,6 @@ const SuperAdminUserDetailView = () => {
                         <h3 className="text-lg font-semibold text-gray-900 mb-4">Performance</h3>
                         <p className="text-gray-600">Level: <span className="font-bold">{student.level}</span></p>
                         <p className="text-gray-600">Tests Taken: <span className="font-bold">{student.tests_taken}</span></p>
-                        <p className="text-gray-600">Average Score: <span className="font-bold">{student.average_score.toFixed(1)}</span></p>
-                        <p className="text-gray-600">Badge: <span className="font-bold">{student.badge}</span></p>
                     </div>
                 </div>
                 {/* Task Details */}

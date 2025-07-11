@@ -225,7 +225,7 @@ const StudentLeaderboard: React.FC<StudentLeaderboardProps> = ({ onEventSelect }
       pointsText = `🏆 #1 Rank`
       pointsIcon = ""
       pointsColor = "text-yellow-400"
-      tooltipText = `You're a champion! Keep earning to stay on top.`
+      tooltipText = `${student.name} is a champion! Keep earning to stay on top.`
       tooltipIcon = <Trophy size={16} />
       tooltipColor = "text-yellow-400"
     } else if (currentData[0].total_score === student.total_score) {
@@ -233,7 +233,7 @@ const StudentLeaderboard: React.FC<StudentLeaderboardProps> = ({ onEventSelect }
       pointsText = `⚡Beat the Clock! Next Time.`
       pointsIcon = ""
       pointsColor = "text-blue-400"
-      tooltipText = `You're tied for the top score! Complete tasks faster to claim #1 Rank next time.`
+      tooltipText = `Tied for the top score! Complete tasks faster to claim #1 Rank next time.`
       tooltipIcon = <Shield size={16} />
       tooltipColor = "text-blue-400"
     } else {
