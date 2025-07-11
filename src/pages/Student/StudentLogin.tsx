@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
@@ -30,7 +29,7 @@ const StudentLogin = ({ onLogin }: StudentLoginProps) => {
   const [isTransitioning, setIsTransitioning] = useState(false);
   
   const navigate = useNavigate();
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://leaderboard-backend-4uxl.onrender.com';
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
 
   const images = [loginScattered11, loginScattered22, loginScattered33];
 
@@ -152,7 +151,7 @@ const StudentLogin = ({ onLogin }: StudentLoginProps) => {
       {loading && <Loader message="Logging you in..." />}
       <ToastContainer />
       {/* <h1 className='justify-start'>SNS ASSESSMENT PORTAL</h1> */}
-      <div className="relative bg-white shadow-lg rounded-2xl flex flex-col lg:flex-row max-w-6xl w-full overflow-hidden">
+      <div className="relative bg-white shadow-lg rounded-2xl flex flex-col lg:flex-row max-w-6xl lg:w-full overflow-hidden">
         {/* Form Section */}
         <form
               onSubmit={handleLogin}
@@ -263,7 +262,7 @@ const StudentLogin = ({ onLogin }: StudentLoginProps) => {
                 key={index}
                 src={img}
                 alt={`Slide ${index + 1}`}
-                className="absolute inset-0 w-full h-full object-cover transition-all duration-1000 ease-in-out"
+                className="absolute inset-0 w-full h-full object-contain transition-all duration-1000 ease-in-out"
                 style={{
                   opacity: currentImageIndex === index ? 1 : 0,
                   transform: `scale(${currentImageIndex === index ? 1 : 1.05})`,

@@ -44,7 +44,7 @@ const StudentForgotPassword: React.FC = () => {
     try {
       setIsLoading(true);
       setError('');
-      const response = await fetch('https://leaderboard-backend-4uxl.onrender.com/api/Student/send-reset-link/', {
+      const response = await fetch('http://localhost:8000/api/Student/send-reset-link/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -76,7 +76,7 @@ const StudentForgotPassword: React.FC = () => {
     try {
       setIsLoading(true);
       setError('');
-      const response = await fetch('https://leaderboard-backend-4uxl.onrender.com/api/Student/send-reset-link/', {
+      const response = await fetch('http://localhost:8000/api/Student/send-reset-link/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -104,7 +104,7 @@ const StudentForgotPassword: React.FC = () => {
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100 p-4">
-      <div className="relative bg-white shadow-lg rounded-2xl flex flex-col lg:flex-row max-w-6xl w-full p-4 sm:p-8 overflow-hidden">
+      <div className="relative bg-white shadow-lg rounded-2xl flex flex-col lg:flex-row max-w-6xl lg:w-full p-4 sm:p-8 overflow-hidden">
         {/* Form Section */}
         <div className="flex-1 p-6 sm:p-8 md:p-12 lg:p-20">
           {step === 1 && (
@@ -158,13 +158,7 @@ const StudentForgotPassword: React.FC = () => {
 
           {step === 2 && (
             <div className="text-center">
-              <div className="flex justify-center mb-6">
-                <img
-                  src={snsLogo}
-                  className="w-auto mb-8"
-                  alt="SNS Institutions Logo"
-                />
-              </div>
+             
               
               <div className="flex justify-center mb-6">
                 <img src={mail || "/placeholder.svg"} alt="Check email" className="h-24 w-24" />
@@ -203,7 +197,7 @@ const StudentForgotPassword: React.FC = () => {
                 key={index}
                 src={img}
                 alt={`Slide ${index + 1}`}
-                className="absolute inset-0 w-full h-full object-cover transition-all duration-1000 ease-in-out"
+                className="absolute inset-0 w-full h-full object-contain transition-all duration-1000 ease-in-out"
                 style={{
                   opacity: currentImageIndex === index ? 1 : 0,
                   transform: `scale(${currentImageIndex === index ? 1 : 1.05})`,

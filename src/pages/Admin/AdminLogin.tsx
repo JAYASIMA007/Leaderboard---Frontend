@@ -57,7 +57,7 @@ const AdminLogin = () => {
     setErrors({});
 
     try {
-      const response = await axios.post("https://leaderboard-backend-4uxl.onrender.com/api/admin/signin/", {
+      const response = await axios.post("http://localhost:8000/api/admin/signin/", {
         email,
         password,
       });
@@ -124,7 +124,7 @@ const AdminLogin = () => {
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100 p-4">
-      <div className="relative bg-white shadow-lg rounded-2xl flex flex-col lg:flex-row max-w-6xl w-full overflow-hidden">
+      <div className="relative bg-white shadow-lg rounded-2xl flex flex-col lg:flex-row max-w-6xl lg:w-full overflow-hidden">
         <form onSubmit={handleSubmit} className="flex flex-1 flex-col items-center justify-center p-6 sm:p-8 md:p-12 lg:p-20">
           <div className="w-full max-w-md flex flex-col items-center">
             <img src={snsLogo} className="w-auto mb-3 h-12 sm:h-16" alt="SNS Institutions Logo" />
@@ -182,7 +182,7 @@ const AdminLogin = () => {
                   className="text-gray-400 hover:text-gray-600"
                   disabled={loading}
                 >
-                  {showPassword ? <EyeOff className="h-4 w-4 sm:h-5 sm:w-5" /> : <Eye className="h-4 w-4 sm:h-5 sm:w-5" />}
+                  {showPassword ? <Eye className="h-4 w-4 sm:h-5 sm:w-5" /> : <EyeOff className="h-4 w-4 sm:h-5 sm:w-5" />}
                 </button>
               </div>
               {errors.password && (
@@ -226,7 +226,7 @@ const AdminLogin = () => {
                 key={index}
                 src={img}
                 alt={`Slide ${index + 1}`}
-                className="absolute inset-0 w-full h-full object-cover transition-all duration-1000 ease-in-out"
+                className="absolute inset-0 w-full h-full object-contain transition-all duration-1000 ease-in-out"
                 style={{
                   opacity: currentImageIndex === index ? 1 : 0,
                   transform: `scale(${currentImageIndex === index ? 1 : 1.05})`,

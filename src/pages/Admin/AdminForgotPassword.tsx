@@ -47,7 +47,7 @@ const AdminForgotPassword: React.FC = () => {
         try {
           setIsLoading(true);
           console.log('Sending request to /api/admin/validate-reset-token/');
-          const response = await fetch(`https://leaderboard-backend-4uxl.onrender.com/api/admin/validate-reset-token/?token=${encodeURIComponent(token)}`, {
+          const response = await fetch(`http://localhost:8000/api/admin/validate-reset-token/?token=${encodeURIComponent(token)}`, {
             method: 'GET',
             headers: {
               'Content-Type': 'application/json',
@@ -120,7 +120,7 @@ const AdminForgotPassword: React.FC = () => {
     try {
       setIsLoading(true);
       setError('');
-      const response = await fetch('https://leaderboard-backend-4uxl.onrender.com/api/admin/forgot-password/', {
+      const response = await fetch('http://localhost:8000/api/admin/forgot-password/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -155,7 +155,7 @@ const AdminForgotPassword: React.FC = () => {
     try {
       setIsLoading(true);
       setError('');
-      const response = await fetch('https://leaderboard-backend-4uxl.onrender.com/api/admin/forgot-password/', {
+      const response = await fetch('http://localhost:8000/api/admin/forgot-password/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -221,7 +221,7 @@ const AdminForgotPassword: React.FC = () => {
     try {
       setIsLoading(true);
       setError('');
-      const response = await fetch('https://leaderboard-backend-4uxl.onrender.com/api/admin/reset-password-for-forgot-password/', {
+      const response = await fetch('http://localhost:8000/api/admin/reset-password-for-forgot-password/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -254,7 +254,7 @@ const AdminForgotPassword: React.FC = () => {
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100">
-      <div className="relative bg-white shadow-lg rounded-2xl flex max-w-6xl w-full">
+      <div className="relative bg-white shadow-lg rounded-2xl flex max-w-6xl lg:w-full">
         {/* Form Section */}
         <div className="flex-1 p-10 md:p-20">
           {step === 1 && (
@@ -302,9 +302,7 @@ const AdminForgotPassword: React.FC = () => {
 
           {step === 2 && (
             <div className="text-center">
-              <div className="flex justify-center mb-6">
-                <img src={snsLogo} className="w-auto mb-8" alt="SNS Institutions Logo" />
-              </div>
+              
 
               <div className="flex justify-center mb-6">
                 <img src={mail || '/placeholder.svg'} alt="Check email" className="h-24 w-24" />
@@ -406,7 +404,7 @@ const AdminForgotPassword: React.FC = () => {
                 key={index}
                 src={img}
                 alt={`Slide ${index + 1}`}
-                className="absolute w-full h-full object-cover transition-all duration-1000 ease-in-out"
+                className="absolute w-full h-full object-contain transition-all duration-1000 ease-in-out"
                 style={{
                   opacity: currentImageIndex === index ? 1 : 0,
                   transform: `scale(${currentImageIndex === index ? 1 : 0.95})`,

@@ -117,7 +117,7 @@ const LeaderBoardView = ({ view }: { view: string }) => {
                     .split(";")
                     .find((c) => c.trim().startsWith("jwt="))
                     ?.split("=")[1]
-                const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://leaderboard-backend-4uxl.onrender.com"
+                const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000"
                 const leaderboardResponse = await axios.post(
                     `${API_BASE_URL}/api/student/leaderboard/`,
                     { event_id },
@@ -497,9 +497,9 @@ const LeaderBoardView = ({ view }: { view: string }) => {
                                 <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-gray-100 rounded-full mb-3 sm:mb-4">
                                     <Users className="w-6 h-6 sm:w-8 sm:h-8 text-gray-400" />
                                 </div>
-                                <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2">No Students Found</h3>
+                                <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2">No User Found</h3>
                                 <p className="text-gray-600 text-sm sm:text-base">
-                                    There are no students participating in this event yet.
+                                    There are no User participating in this event yet.
                                 </p>
                             </div>
                         )}
@@ -510,4 +510,4 @@ const LeaderBoardView = ({ view }: { view: string }) => {
     )
 }
 
-export default LeaderBoardView
+export default LeaderBoardView;
