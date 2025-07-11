@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { ArrowLeft, Check, X, Eye, EyeOff } from "lucide-react";
-import snsLogo from "../../assets/Logo.svg";
+import snsLogo from "../../assets/logo.svg";
 
 const StudentResetPassword: React.FC = () => {
   const navigate = useNavigate();
