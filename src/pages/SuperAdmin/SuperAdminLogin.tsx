@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock,AlertCircle, CheckCircle } from 'lucide-react';
 
 // Assuming you have these images in your assets
-import snsLogo from '../../assets/Logo.svg';
+import snsLogo from '../../assets/logo.svg';
 import loginScattered11 from "../../assets/LoginImg1.png";
 import loginScattered22 from "../../assets/LoginImg2.png";
 import loginScattered33 from "../../assets/LoginImg3.png";
