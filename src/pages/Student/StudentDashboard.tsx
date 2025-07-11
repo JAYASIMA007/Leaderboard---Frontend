@@ -778,7 +778,7 @@ const RecentTasks = ({ eventId }: { eventId: string }) => {
         return;
       }
 
-      const response = await fetch("http://localhost:8000/api/student/recent_tasks_by_event", {
+      const response = await fetch("https://leaderboard-backend-4uxl.onrender.com/api/student/recent_tasks_by_event", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -1084,7 +1084,7 @@ const StudentDashboard: React.FC = () => {
       const jwtToken = getJwtToken();
       if (!jwtToken) return;
 
-      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://leaderboard-backend-4uxl.onrender.com";
 
       const response = await fetch(`${API_BASE_URL}/api/student/student-streaks/`, {
         method: "POST",
@@ -1121,7 +1121,7 @@ const StudentDashboard: React.FC = () => {
         throw new Error("Authentication required. Please login again.");
       }
 
-      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://leaderboard-backend-4uxl.onrender.com";
 
       // 1️⃣ Fetch Event Points
       const eventPointsResponse = await axios.get(`${API_BASE_URL}/api/student/events/${eventId}/points/`, {
