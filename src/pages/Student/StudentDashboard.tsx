@@ -19,6 +19,7 @@ import Silver from "../../assets/silver.jpg"
 import Gold from "../../assets/gold.jpg"
 import Platinum from "../../assets/platnium.jpg"
 import Elite from "../../assets/elite.jpg"
+import Beginner from "../../assets/beginner.jpg"
 
 // Add global styles for custom scrollbar
 const customScrollbarStyles = `
@@ -232,9 +233,12 @@ interface JwtPayload {
 const Milestone: React.FC<{
   eventPoints: EventPointsData | null;
 }> = ({ eventPoints }) => {
-  // Define milestone thresholds based on actual points (not percentage)
-  const totalEventPoints = eventPoints?.total_event_points || 1000; // Default to 1000 if not available
+  const totalEventPoints = eventPoints?.total_event_points || 1000;
+  const userPoints = eventPoints?.total_points_earned || 0;
+  const completionPercentage = eventPoints?.completion_percentage || 0;
+
   const milestoneThresholds = [
+    { name: "Beginner", points: Math.round(totalEventPoints * 0), icon: Beginner },
     { name: "Bronze", points: Math.round(totalEventPoints * 0.2), icon: Bronze },
     { name: "Silver", points: Math.round(totalEventPoints * 0.4), icon: Silver },
     { name: "Gold", points: Math.round(totalEventPoints * 0.6), icon: Gold },
@@ -242,203 +246,171 @@ const Milestone: React.FC<{
     { name: "Elite", points: totalEventPoints, icon: Elite },
   ];
 
-  // Calculate which milestones are completed based on actual points earned
-  const userPoints = eventPoints?.total_points_earned || 0;
-  const completionPercentage = eventPoints?.completion_percentage || 0;
-
   const milestones = milestoneThresholds.map((milestone) => ({
     label: milestone.name,
     icon: milestone.icon,
     completed: userPoints >= milestone.points,
-    threshold: Math.round((milestone.points / totalEventPoints) * 100),
+    threshold: (milestone.points / totalEventPoints) * 100,
     points: milestone.points,
   }));
 
-  // Find the current milestone - the highest achieved one based on points
-  // For example: if user has 120 points, and Silver is 100 points, Gold is 150 points
-  // Silver should be the current milestone that glows and animates
   let currentIndex = -1;
-  
   for (let i = milestones.length - 1; i >= 0; i--) {
     if (userPoints >= milestones[i].points) {
       currentIndex = i;
       break;
     }
   }
-  
-  // If no milestone is achieved yet, but user has some points, show the first milestone as the target
   if (currentIndex === -1 && userPoints > 0) {
-    currentIndex = 0; // Show first milestone as target if user has some points but hasn't reached Bronze yet
+    currentIndex = 0;
   }
 
   return (
     <Card className="hover:shadow-2xl hover:shadow-blue-500/20 transition-all duration-300 w-full p-3 sm:p-4 lg:p-5 bg-gradient-to-br from-[#0f1535] to-[#151c41] border border-blue-500/20">
       <CardContent>
-      {/* Header with dynamic data - More compact */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 sm:mb-4">
-        <div className="mb-2 sm:mb-0 flex items-center">
-          <div className="w-10 h-10 bg-blue-600/30 rounded-lg flex items-center justify-center mr-3">
-            <Trophy className="w-6 h-6 text-blue-400" />
-          </div>
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 sm:mb-4">
+          <div className="mb-2 sm:mb-0 flex items-center">
+            <div className="w-10 h-10 bg-blue-600/30 rounded-lg flex items-center justify-center mr-3">
+              <Trophy className="w-6 h-6 text-blue-400" />
+            </div>
             <div>
-            <h2 className="text-lg sm:text-xl font-bold text-white group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r from-blue-300 to-purple-300">
-              Achievement Path
-            </h2>
-            {eventPoints && (
-              <p className="text-sm text-gray-400">
-              {eventPoints.event_name || "Event Progress"}
-              </p>
-            )}
-            </div>
-        </div>
-        <div className="flex items-center bg-white/5 px-3 py-2 rounded-lg border border-blue-500/20">
-          <div className="mr-3">
-            <div className="text-xs text-blue-300 uppercase tracking-wider font-semibold">Points</div>
-            <div className="text-base sm:text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-300 to-purple-400">
-              {eventPoints ? eventPoints.total_points_earned.toLocaleString() : "0"}
-            </div>
-          </div>
-          <div className="h-8 w-px bg-white/10 mx-2"></div>
-          <div>
-            <div className="text-xs text-blue-300 uppercase tracking-wider font-semibold">Target</div>
-            <div className="text-base sm:text-lg font-bold text-gray-400">
-              {eventPoints ? eventPoints.total_event_points.toLocaleString() : "0"}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      
-
-      {/* Milestone Progress Bar with Markers - Reduced height */}
-      <div className="relative w-full h-32 sm:h-36 flex items-center justify-between px-2 sm:px-3">
-        {/* Badge Icons at Top with compact spacing */}
-        <div className="absolute top-0 left-0 right-0 flex justify-between px-2 sm:px-3">
-          {milestones.map((milestone, index) => (
-            <div key={index} className={`relative transition-all duration-500 ${
-              index === currentIndex && milestone.completed
-                ? "scale-150 animate-pulse" 
-                : milestone.completed 
-                ? "scale-105 opacity-100"
-                : index === currentIndex 
-                ? "scale-105 animate-bounce" 
-                : "scale-100 opacity-75"
-            }`}>
-              {/* Simplified particle effects */}
-              {index === currentIndex && milestone.completed && (
-                <div className="absolute -top-1 -right-1 w-2 h-2 text-yellow-300  animate-sparkle-zap">
-                  <Sparkles className="w-full h-full text-yellow-300 drop-shadow-glow" />
-                </div>
+              <h2 className="text-lg sm:text-xl font-bold text-white">Achievement Path</h2>
+              {eventPoints && (
+                <p className="text-sm text-gray-400">{eventPoints.event_name || "Event Progress"}</p>
               )}
-              
-              {/* Badge glow effect - smaller blur */}
-              <div className={`absolute inset-0 rounded-full blur-sm transition-opacity duration-300 ${
-                milestone.completed 
-                  ? index === currentIndex 
-                    ? "opacity-70 bg-yellow-400/50" 
-                    : "opacity-40 bg-green-400/30"
-                  : index === currentIndex 
-                    ? "opacity-30 bg-blue-400/30" 
-                    : "opacity-0"
-              }`}></div>
-
-              {/* Badge Icon with smaller size */}
-              <div className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 relative">
-                <img
-                  src={milestone.icon}
-                  alt={milestone.label}
-                  className={`w-full h-full object-contain rounded-full transition-all duration-500 ${
-                    milestone.completed
-                      ? index === currentIndex 
-                        ? "drop-shadow-[0_0_5px_rgba(250,204,21,0.7)] brightness-110"
-                        : "drop-shadow-[0_0_3px_rgba(74,222,128,0.5)]"
-                      : index === currentIndex 
-                        ? "brightness-110 drop-shadow-[0_0_3px_rgba(96,165,250,0.5)]"
-                        : "grayscale-[70%] opacity-50"
-                  }`}
-                />
-                
-                {/* Smaller check mark */}
-                {milestone.completed && (
-                  <div className="absolute -bottom-0.5 -right-0.5 bg-green-500 rounded-full w-3 h-3 flex items-center justify-center border border-black">
-                    <svg width="6" height="6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M5 13L9 17L19 7" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  </div>
-                )}
+            </div>
+          </div>
+          <div className="flex items-center bg-white/5 px-3 py-2 rounded-lg border border-blue-500/20">
+            <div className="mr-3">
+              <div className="text-xs text-blue-300 uppercase tracking-wider font-semibold">Points</div>
+              <div className="text-base sm:text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-300 to-purple-400">
+                {eventPoints ? eventPoints.total_points_earned.toLocaleString() : "0"}
               </div>
             </div>
-          ))}
-        </div>
-
-        {/* Connected Path Line - Thinner */}
-        <div className="absolute top-1/2 left-2 right-2 sm:left-4 sm:right-4 h-2 -translate-y-1/2 z-0">
-          {/* Background track */}
-          <div className="absolute inset-0 h-1.5 bg-gray-700/50 rounded-full"></div>
-          
-          {/* Glowing progress line */}
-          <div
-            className="absolute inset-0 h-1.5 rounded-full bg-gradient-to-r from-blue-400 via-indigo-500 to-purple-600 transition-all duration-1000 overflow-hidden"
-            style={{ width: `${completionPercentage}%` }}
-          >
-            {/* Animated shimmer effect */}
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent animate-shimmer"></div>
+            <div className="h-8 w-px bg-white/10 mx-2"></div>
+            <div>
+              <div className="text-xs text-blue-300 uppercase tracking-wider font-semibold">Target</div>
+              <div className="text-base sm:text-lg font-bold text-gray-400">
+                {eventPoints ? eventPoints.total_event_points.toLocaleString() : "0"}
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Milestone Markers and Labels - More compact */}
-        {milestones.map((milestone, index) => (
-          <div key={index} className="relative z-10 flex flex-col items-center mt-14 sm:mt-16">
-            {/* Triangle Arrow Marker - Smaller */}
-            <div className="relative">
+        {/* Progress bar + milestones wrapper */}
+        <div className="relative w-full h-32 sm:h-36">
+          {/* Unified container with shared coordinate space */}
+          <div className="absolute inset-x-6 sm:inset-x-10 top-0 h-full">
+
+            {/* Milestone icons */}
+            {milestones.map((milestone, index) => (
               <div
-                className={`w-0 h-0 border-l-[4px] border-r-[4px] border-b-[6px] border-l-transparent border-r-transparent transition-all duration-300 ${
+                key={index}
+                className="absolute flex flex-col items-center transition-all duration-500"
+                style={{ left: `${milestone.threshold}%`, transform: 'translateX(-50%)' }}
+              >
+                {/* Sparkle on current */}
+                {index === currentIndex && milestone.completed && (
+                  <div className="absolute -top-1 -right-1 w-2 h-2 text-yellow-300 animate-sparkle-zap">
+                    <Sparkles className="w-full h-full text-yellow-300 drop-shadow-glow" />
+                  </div>
+                )}
+
+                {/* Glow backdrop */}
+                <div className={`absolute inset-0 rounded-full blur-sm transition-opacity duration-300 ${
                   milestone.completed 
                     ? index === currentIndex 
-                      ? "border-b-yellow-400 animate-bounce-slow" 
-                      : "border-b-green-400"
+                      ? "opacity-70 bg-yellow-400/50" 
+                      : "opacity-40 bg-green-400/30"
                     : index === currentIndex 
-                      ? "border-b-blue-400 animate-pulse" 
-                      : "border-b-gray-500"
-                }`}
-              />
-              
-              {/* Smaller pulsing dot */}
-              {index === currentIndex && (
-                <div className="absolute -top-1.5 left-1/2 transform -translate-x-1/2 w-2 h-2 rounded-full bg-blue-400 animate-ping opacity-75"></div>
-              )}
+                      ? "opacity-30 bg-blue-400/30" 
+                      : "opacity-0"
+                }`} />
+
+                {/* Badge Icon */}
+                <div className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 relative">
+                  <img
+                    src={milestone.icon}
+                    alt={milestone.label}
+                    className={`w-full h-full object-contain rounded-full transition-all duration-500 ${
+                      milestone.completed
+                        ? index === currentIndex 
+                          ? "drop-shadow-[0_0_5px_rgba(250,204,21,0.7)] brightness-110"
+                          : "drop-shadow-[0_0_3px_rgba(74,222,128,0.5)]"
+                        : index === currentIndex 
+                          ? "brightness-110 drop-shadow-[0_0_3px_rgba(96,165,250,0.5)]"
+                          : "grayscale-[70%] opacity-50"
+                    }`}
+                  />
+                  {/* Checkmark */}
+                  {milestone.completed && (
+                    <div className="absolute -bottom-0.5 -right-0.5 bg-green-500 rounded-full w-3 h-3 flex items-center justify-center border border-black">
+                      <svg width="6" height="6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M5 13L9 17L19 7" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+
+            {/* Path Background */}
+            <div className="absolute top-1/2 w-full h-1.5 bg-gray-700/50 rounded-full -translate-y-1/2 z-0" />
+
+            {/* Progress Line */}
+            <div
+              className="absolute top-1/2 h-1.5 rounded-full bg-gradient-to-r from-blue-400 via-indigo-500 to-purple-600 transition-all duration-1000 overflow-hidden -translate-y-1/2 z-10"
+              style={{ width: `${completionPercentage}%` }}
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent animate-shimmer" />
             </div>
 
-            {/* More compact labels */}
-            <div className="text-center mt-2 bg-white/5 px-1.5 py-0.5 rounded-md border border-white/10">
-              <span className={`block text-[8px] sm:text-[18px] font-semibold whitespace-nowrap transition-all duration-300 ${
-                milestone.completed 
-                  ? index === currentIndex 
-                    ? "text-yellow-300" 
-                    : "text-green-300" 
-                  : index === currentIndex 
-                    ? "text-blue-300" 
-                    : "text-gray-400"
-              }`}>
-                {milestone.label}
-              </span>
-              <span className={`block text-[8px] sm:text-[10px] mt-0.5 transition-all duration-300 ${
-                milestone.completed 
-                  ? index === currentIndex 
-                    ? "text-yellow-400" 
-                    : "text-green-400" 
-                  : index === currentIndex 
-                    ? "text-blue-400" 
-                    : "text-gray-500"
-              }`}>
-                {milestone.points.toLocaleString()}
-              </span>
-            </div>
+            {/* Triangle Markers + Labels */}
+            {milestones.map((milestone, index) => (
+              <div
+                key={index}
+                className="absolute z-10 flex flex-col items-center mt-16"
+                style={{ left: `${milestone.threshold}%`, transform: 'translateX(-50%)' }}
+              >
+                <div className="relative">
+                  <div
+                    className={`w-0 h-0 border-l-[4px] border-r-[4px] border-b-[6px] border-l-transparent border-r-transparent transition-all duration-300 ${
+                      milestone.completed 
+                        ? index === currentIndex 
+                          ? "border-b-yellow-400 animate-bounce-slow" 
+                          : "border-b-green-400"
+                        : index === currentIndex 
+                          ? "border-b-blue-400 animate-pulse" 
+                          : "border-b-gray-500"
+                    }`}
+                  />
+                  {index === currentIndex && (
+                    <div className="absolute -top-1.5 left-1/2 transform -translate-x-1/2 w-2 h-2 rounded-full bg-blue-400 animate-ping opacity-75" />
+                  )}
+                </div>
+                <div className="text-center mt-2 bg-white/5 px-1.5 py-0.5 rounded-md border border-white/10">
+                  <span className={`block text-[8px] sm:text-[18px] font-semibold whitespace-nowrap ${
+                    milestone.completed 
+                      ? index === currentIndex ? "text-yellow-300" : "text-green-300"
+                      : index === currentIndex ? "text-blue-300" : "text-gray-400"
+                  }`}>
+                    {milestone.label}
+                  </span>
+                  <span className={`block text-[8px] sm:text-[10px] mt-0.5 ${
+                    milestone.completed 
+                      ? index === currentIndex ? "text-yellow-400" : "text-green-400"
+                      : index === currentIndex ? "text-blue-400" : "text-gray-500"
+                  }`}>
+                    {milestone.points.toLocaleString()}
+                  </span>
+                </div>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
+        </div>
       </CardContent>
-        </Card>
+    </Card>
   );
 };
 
@@ -806,7 +778,7 @@ const RecentTasks = ({ eventId }: { eventId: string }) => {
         return;
       }
 
-      const response = await fetch("https://leaderboard-backend-4uxl.onrender.com/api/student/recent_tasks_by_event", {
+      const response = await fetch("http://localhost:8000/api/student/recent_tasks_by_event", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -1112,7 +1084,7 @@ const StudentDashboard: React.FC = () => {
       const jwtToken = getJwtToken();
       if (!jwtToken) return;
 
-      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://leaderboard-backend-4uxl.onrender.com";
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 
       const response = await fetch(`${API_BASE_URL}/api/student/student-streaks/`, {
         method: "POST",
@@ -1149,7 +1121,7 @@ const StudentDashboard: React.FC = () => {
         throw new Error("Authentication required. Please login again.");
       }
 
-      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://leaderboard-backend-4uxl.onrender.com";
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 
       // 1️⃣ Fetch Event Points
       const eventPointsResponse = await axios.get(`${API_BASE_URL}/api/student/events/${eventId}/points/`, {
@@ -1431,7 +1403,7 @@ const StudentDashboard: React.FC = () => {
                 </span>
                 <span className="ml-2 text-orange-400 text-[35px] font-bold">days</span>
                 {(streak?.current_streak ?? 0) > 0 && (
-                  <div className="ml-2 animate-bounce">
+                  <div className="ml-2">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M15 17H20L18 20H15V23L9 16.5L15 10V13H18L15 17Z" fill="#f97316" />
                     <path d="M8 7V4H11L9 1H4L6 4H3L8 7Z" fill="#f97316" />
@@ -1461,7 +1433,7 @@ const StudentDashboard: React.FC = () => {
                   <CardContent className="p-4 sm:p-5 lg:p-6 h-full flex flex-col">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center">
-                        <div className="w-7 h-7 sm:w-8 sm:h-8 bg-yellow-500 rounded-full flex items-center justify-center mr-3 animate-spin">
+                        <div className="w-7 h-7 sm:w-8 sm:h-8 bg-yellow-500 rounded-full flex items-center justify-center mr-3 ">
                           <Trophy className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
                         </div>
                         <div>
@@ -1474,70 +1446,70 @@ const StudentDashboard: React.FC = () => {
                       </Badge>
                     </div>
 
-                    
-
                     <div className="space-y-2 sm:space-y-3 flex-1 overflow-y-auto custom-scrollbar py-4 sm:py-6">
-                      {leaderboard.length === 0 ? (
-                      <div className="text-center py-8 text-gray-300 text-base sm:text-lg">
-                        No students have participated
-                      </div>
+                      {leaderboard.filter(student => student.total_score > 0).length === 0 ? (
+                        <div className="text-center py-8 text-gray-300 mt-35 text-base sm:text-lg">
+                          Be the first to get in the Hall of Fame!
+                        </div>
                       ) : (
-                      leaderboard.slice(0, 4).map((student, index) => (
-                        <div
-                        key={student._id}
-                        className={`flex items-center p-3 sm:p-5 rounded-lg transition-all hover:scale-[1.02] ${
-                          student.name === currentUserName
-                          ? "bg-gradient-to-r from-yellow-600/20 to-yellow-600/20 border border-yellow-500/30 animate-pulse"
-                          : "bg-white/5 hover:bg-white/10"
-                        }`}
-                        >
-                        <div className="flex items-center space-x-2 sm:space-x-3 flex-1">
-                          <div
-                          className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-xs sm:text-sm font-bold relative ${
-                            index === 0
-                            ? "bg-gradient-to-r from-yellow-400 to-yellow-600 text-white"
-                            : index === 1
-                              ? "bg-gradient-to-r from-gray-300 to-gray-500 text-white"
-                              : index === 2
-                              ? "bg-gradient-to-r from-orange-400 to-orange-600 text-white"
-                              : "bg-gradient-to-r from-purple-500 to-pink-500 text-white"
-                          }`}
-                          >
-                          {student.name ? student.name.charAt(0) : "?"}
-                          {index < 3 && (
-                            <div className="absolute -top-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 bg-yellow-400 rounded-full flex items-center justify-center">
-                            <Trophy className="w-1.5 h-1.5 sm:w-2 sm:h-2 text-white" />
+                        leaderboard
+                          .filter(student => student.total_score > 0)
+                          .slice(0, 4)
+                          .map((student, index) => (
+                            <div
+                              key={student._id}
+                              className={`flex items-center p-3 sm:p-5 rounded-lg transition-all hover:scale-[1.02] ${
+                                student.name === currentUserName
+                                  ? "bg-gradient-to-r from-yellow-600/20 to-yellow-600/20 border border-yellow-500/30 "
+                                  : "bg-white/5 hover:bg-white/10"
+                              }`}
+                            >
+                              <div className="flex items-center space-x-2 sm:space-x-3 flex-1">
+                                <div
+                                  className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-xs sm:text-sm font-bold relative ${
+                                    index === 0
+                                      ? "bg-gradient-to-r from-yellow-400 to-yellow-600 text-white"
+                                      : index === 1
+                                        ? "bg-gradient-to-r from-gray-300 to-gray-500 text-white"
+                                        : index === 2
+                                          ? "bg-gradient-to-r from-orange-400 to-orange-600 text-white"
+                                          : "bg-gradient-to-r from-purple-500 to-pink-500 text-white"
+                                  }`}
+                                >
+                                  {student.name ? student.name.charAt(0) : "?"}
+                                  {index < 3 && (
+                                    <div className="absolute -top-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 bg-yellow-400 rounded-full flex items-center justify-center">
+                                      <Trophy className="w-1.5 h-1.5 sm:w-2 sm:h-2 text-white" />
+                                    </div>
+                                  )}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center space-x-2">
+                                    <p className="font-semibold text-white text-sm sm:text-base truncate">{student.name || "Unknown"}</p>
+                                    {student.name === currentUserName && (
+                                      <Badge className="bg-yellow-500 text-white text-xs px-1.5 py-0 border-yellow-500 animate-pulse ">
+                                        You
+                                      </Badge>
+                                    )}
+                                  </div>
+                                  <div className="flex items-center space-x-2">
+                                    <p className="text-xs sm:text-sm text-gray-400">Level {student.level}</p>
+                                    <div className="flex items-center">
+                                      <Flame className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-orange-400 mr-1" />
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="text-right">
+                                <p className="font-bold text-white text-sm sm:text-base">{student.total_score.toLocaleString()}</p>
+                                <div className="flex items-center space-x-1 justify-end">
+                                  {index < 3 && <Trophy className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-yellow-400" />}
+                                  <Star className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-yellow-400 animate-pulse" />
+                                  <Zap className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-blue-400" />
+                                </div>
+                              </div>
                             </div>
-                          )}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                          <div className="flex items-center space-x-2">
-                            <p className="font-semibold text-white text-sm sm:text-base truncate">{student.name || "Unknown"}</p>
-                            {student.name === currentUserName && (
-                            <Badge className="bg-yellow-500 text-white text-xs px-1.5 py-0 border-yellow-500 animate-bounce">
-                              You
-                            </Badge>
-                            )}
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <p className="text-xs sm:text-sm text-gray-400">Level {student.level}</p>
-                            <div className="flex items-center">
-                            <Flame className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-orange-400 mr-1" />
-                            <span className="text-xs text-orange-400">{student.streak || 0}</span>
-                            </div>
-                          </div>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <p className="font-bold text-white text-sm sm:text-base">{student.total_score.toLocaleString()}</p>
-                          <div className="flex items-center space-x-1 justify-end">
-                          {index < 3 && <Trophy className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-yellow-400 animate-bounce" />}
-                          <Star className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-yellow-400 animate-pulse" />
-                          <Zap className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-blue-400" />
-                          </div>
-                        </div>
-                        </div>
-                      ))
+                          ))
                       )}
                     </div>
 
@@ -1549,7 +1521,7 @@ const StudentDashboard: React.FC = () => {
                           </div>
                           <div>
                             <p className="text-xs text-gray-400">Your Position</p>
-                                                        <p className="font-semibold text-white text-sm">{currentUserName || "Your Name"}</p>
+                            <p className="font-semibold text-white text-sm">{currentUserName || "Your Name"}</p>
                           </div>
                         </div>
                         <div className="text-right">
