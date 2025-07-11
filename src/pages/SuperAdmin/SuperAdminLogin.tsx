@@ -63,7 +63,7 @@ const SuperAdminLogin = () => {
   setErrors({});
 
   try {
-    const response = await fetch("http://localhost:8000/api/superadmin/login/", {
+    const response = await fetch("https://leaderboard-backend-4uxl.onrender.com/api/superadmin/login/", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

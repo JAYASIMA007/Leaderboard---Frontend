@@ -44,7 +44,7 @@ const StudentForgotPassword: React.FC = () => {
     try {
       setIsLoading(true);
       setError('');
-      const response = await fetch('http://localhost:8000/api/Student/send-reset-link/', {
+      const response = await fetch('https://leaderboard-backend-4uxl.onrender.com/api/Student/send-reset-link/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -76,7 +76,7 @@ const StudentForgotPassword: React.FC = () => {
     try {
       setIsLoading(true);
       setError('');
-      const response = await fetch('http://localhost:8000/api/Student/send-reset-link/', {
+      const response = await fetch('https://leaderboard-backend-4uxl.onrender.com/api/Student/send-reset-link/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
